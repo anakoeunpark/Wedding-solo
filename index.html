@@ -191,11 +191,12 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <div style="font-size:14px;color:var(--muted);margin-top:8px;line-height:1.6;" id="my-intro"></div>
   </div>
   <div id="vote-area">
+    <div id="vote-status-banner" style="display:none;font-size:13px;color:var(--brown);background:var(--warm);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:1rem;"></div>
     <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:0.75rem;">이성 프로필 — 순위를 골라주세요</div>
     <div id="home-profiles" class="cards-grid"></div>
     <div class="divider"></div>
     <div id="home-vote-summary" style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:0.5rem;"></div>
-    <button class="btn primary" onclick="saveVotes()">투표 저장하기</button>
+    <button class="btn primary" id="save-vote-btn" onclick="saveVotes()">투표 저장하기</button>
   </div>
   <div id="closed-banner" class="closed-banner" style="display:none;">
     <div style="font-family:'Gowun Batang',serif;font-size:18px;margin-bottom:6px;">투표가 마감됐어요</div>
@@ -340,7 +341,7 @@ function startListeners() {
     }
   });
   onValue(ref(db, 'settings/votingOpen'), snap => {
-    votingOpen = snap.val() !== false;
+    votingOpen = snap.val() === true;
     if (document.getElementById('page-home').classList.contains('active')) renderHome();
     if (document.getElementById('page-admin').classList.contains('active')) renderAdmin();
   });
@@ -413,10 +414,25 @@ function renderHome() {
   document.getElementById('my-intro').textContent = me.intro||'';
   const voteArea = document.getElementById('vote-area');
   const closedBanner = document.getElementById('closed-banner');
-  if (!votingOpen) {
-    voteArea.style.display='none'; closedBanner.style.display='block'; return;
+  const voteStatusBanner = document.getElementById('vote-status-banner');
+  const saveBtn = document.getElementById('save-vote-btn');
+  const summaryEl = document.getElementById('home-vote-summary');
+
+  voteArea.style.display = 'block';
+  closedBanner.style.display = 'none';
+
+  const voteLocked = !votingOpen;
+  if (voteLocked) {
+    voteStatusBanner.style.display = 'block';
+    voteStatusBanner.textContent = '⏳ 투표는 관리자가 시작하면 참여할 수 있어요. 지금은 프로필만 구경하세요!';
+    saveBtn.style.display = 'none';
+    summaryEl.style.display = 'none';
+  } else {
+    voteStatusBanner.style.display = 'none';
+    saveBtn.style.display = 'block';
+    summaryEl.style.display = 'block';
   }
-  voteArea.style.display='block'; closedBanner.style.display='none';
+
   const pool = Object.values(guests).filter(g=>g.gender!==me.gender);
   const myVotes = votes[myId]||{};
   const rankOf = id => Object.entries(myVotes).find(([r,v])=>String(v)===String(id))?.[0];
@@ -427,8 +443,8 @@ function renderHome() {
     el.innerHTML = pool.map(g=>{
       const rank = rankOf(g.id);
       return `
-        <div class="${rank?'pcard voted-'+rank:'pcard'}">
-          ${rank?`<div class="rank-badge rank-${rank}">${rank}순위</div>`:''}
+        <div class="${rank&&!voteLocked?'pcard voted-'+rank:'pcard'}">
+          ${rank&&!voteLocked?`<div class="rank-badge rank-${rank}">${rank}순위</div>`:''}
           <div class="pcard-nick">${g.nick}</div>
           ${g.mbti?`<span style="display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--warm);color:var(--brown);border:1px solid var(--border);margin-top:5px;">${g.mbti}</span>`:''}
           <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.8;">
@@ -438,15 +454,16 @@ function renderHome() {
             ${g.ideal?`<div>💘 이상형: ${g.ideal}</div>`:''}
           </div>
           ${g.intro?`<div class="pcard-intro">${g.intro}</div>`:''}
+          ${!voteLocked?`
           <div class="vote-btns">
             <button class="vbtn ${myVotes[1]&&String(myVotes[1])===String(g.id)?'active-1':''}" onclick="castVote(1,'${g.id}')">1순위</button>
             <button class="vbtn ${myVotes[2]&&String(myVotes[2])===String(g.id)?'active-2':''}" onclick="castVote(2,'${g.id}')">2순위</button>
             <button class="vbtn ${myVotes[3]&&String(myVotes[3])===String(g.id)?'active-3':''}" onclick="castVote(3,'${g.id}')">3순위</button>
-          </div>
+          </div>`:''}
         </div>`;
     }).join('');
   }
-  updateVoteSummary();
+  if (!voteLocked) updateVoteSummary();
 }
 window.renderHome = renderHome;
 
@@ -527,7 +544,7 @@ window.checkAdminPw = function() {
 
 function renderAdmin() {
   updateStats(); renderAdminList();
-  document.getElementById('toggle-btn').textContent = votingOpen?'투표 마감하기':'투표 다시 열기';
+  document.getElementById('toggle-btn').textContent = votingOpen ? '투표 마감하기' : '투표 시작하기';
 }
 
 function updateStats() {
@@ -537,7 +554,7 @@ function updateStats() {
     <span class="stat-pill stat-m">남자 ${ms}명</span>
     <span class="stat-pill stat-f">여자 ${fs}명</span>
     <span class="stat-pill">투표완료 ${Object.keys(votes).length}명</span>
-    <span class="stat-pill" style="${votingOpen?'background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7;':'background:#fce8e8;color:#c62828;border-color:#ef9a9a;'}">${votingOpen?'진행중':'마감'}</span>`;
+    <span class="stat-pill" style="${votingOpen?'background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7;':'background:#fce8e8;color:#c62828;border-color:#ef9a9a;'}">${votingOpen?'투표 진행중':'투표 미시작/마감'}</span>`;
 }
 
 function renderAdminList() {
