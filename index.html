@@ -550,20 +550,10 @@ function getMatches() {
   const pairs = [];
   const usedM = new Set(), usedF = new Set();
 
-  // 1패스: 상호 선택 있는 커플 우선
+  // 상호 선택만 매칭 (둘 다 0점이면 제외)
   allPairs.forEach(p => {
-    if (p.mutual === 0) return;
+    if (p.mScore === 0 || p.fScore === 0) return;
     if (!usedM.has(p.m.id) && !usedF.has(p.f.id)) {
-      pairs.push(p);
-      usedM.add(p.m.id);
-      usedF.add(p.f.id);
-    }
-  });
-
-  // 2패스: 일방 선택이라도 있는 커플 fallback
-  allPairs.forEach(p => {
-    if (p.mutual > 0) return;
-    if (!usedM.has(p.m.id) && !usedF.has(p.f.id) && (p.mScore > 0 || p.fScore > 0)) {
       pairs.push(p);
       usedM.add(p.m.id);
       usedF.add(p.f.id);
