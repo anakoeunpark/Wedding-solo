@@ -203,6 +203,10 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     매칭 결과는 2부 마무리에 MC가 발표합니다!
   </div>
   <div class="field">
+    <label>이름 <span style="color:var(--muted);font-size:12px;">— 관리자에게만 공개</span></label>
+    <input type="text" id="g-name" placeholder="홍길동"/>
+  </div>
+  <div class="field">
     <label>별명 <span style="color:var(--muted);font-size:12px;">— 프로필에 표시되는 이름</span></label>
     <input type="text" id="g-nick" placeholder="예: 웃음왕, 요리천재, 잠만보"/>
   </div>
@@ -344,9 +348,11 @@ function showErr(id, msg) {
 }
 
 function submitGuest() {
+  const name = document.getElementById('g-name').value.trim();
   const nick = document.getElementById('g-nick').value.trim();
   const intro = document.getElementById('g-intro').value.trim();
   const phone = document.getElementById('g-phone').value.trim();
+  if (!name) return showErr('g-err','이름을 입력해주세요!');
   if (!nick) return showErr('g-err','별명을 입력해주세요!');
   if (!myGender) return showErr('g-err','성별을 선택해주세요!');
   if (!phone) return showErr('g-err','연락처를 입력해주세요!');
@@ -355,9 +361,9 @@ function submitGuest() {
   showErr('g-err','');
   const id = Date.now();
   myId = id; 
-  guests.push({ id, nick, gender: myGender, intro, phone });
+  guests.push({ id, name, nick, gender: myGender, intro, phone });
   save();
-  ['g-nick','g-intro','g-phone'].forEach(i=>document.getElementById(i).value='');
+  ['g-name','g-nick','g-intro','g-phone'].forEach(i=>document.getElementById(i).value='');
   selGender(null); myGender=null;
   renderProfiles();
   showPage('profiles');
@@ -472,7 +478,7 @@ function renderAdminList() {
     <div class="acard">
       <div class="acard-top">
         <div>
-          <span class="acard-name">${g.nick}</span>
+          <span class="acard-name">${g.nick}</span> <span style="font-size:13px;color:var(--muted);">(${g.name})</span>
           <span style="font-size:12px;padding:2px 8px;border-radius:999px;margin-left:6px;${g.gender==='M'?'background:var(--blue-light);color:var(--blue);':'background:var(--rose-light);color:var(--rose);'}">${g.gender==='M'?'남':'여'}</span>
           ${votes[g.id]?'<span style="font-size:11px;color:var(--muted);margin-left:6px;">✓ 투표완료</span>':''}
         </div>
@@ -574,7 +580,7 @@ function renderScores() {
     ${pairs.map((p,i)=>`
       <div class="acard" style="${i<2?'border-color:var(--rose);':''}">
         <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">${i<2?'🎮 게임 커플 '+( i+1):'커플 '+(i+1)}</div>
-        <div style="font-weight:600;">${p.m.nick} &amp; ${p.f.nick}</div>
+        <div style="font-weight:600;">${p.m.nick} (${p.m.name}) &amp; ${p.f.nick} (${p.f.name})</div>
         <div style="font-size:12px;color:var(--muted);margin-top:3px;">${p.m.phone} · ${p.f.phone}</div>
       </div>`).join('')}`;
 }
