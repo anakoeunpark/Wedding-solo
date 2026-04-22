@@ -162,7 +162,11 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
         <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
       </select>
     </div>
-    <div class="field"><label>한 줄 소개 <span style="font-size:12px;">선택</span></label><textarea id="s-intro" placeholder="취미, 직업, 매력 포인트 등 자유롭게 :)"></textarea></div>
+    <div class="field"><label>생년월일 <span style="font-size:12px;">선택</span></label><input type="date" id="s-birth"/></div>
+    <div class="field"><label>하는 일 <span style="font-size:12px;">선택</span></label><input type="text" id="s-job" placeholder="예: 회사원, 디자이너, 대학원생"/></div>
+    <div class="field"><label>취미 <span style="font-size:12px;">선택</span></label><input type="text" id="s-hobby" placeholder="예: 등산, 영화감상, 요리"/></div>
+    <div class="field"><label>이상형 <span style="font-size:12px;">선택</span></label><textarea id="s-ideal" placeholder="어떤 사람을 좋아하세요? :)" style="height:72px;"></textarea></div>
+    <div class="field"><label>한 줄 소개 <span style="font-size:12px;">선택</span></label><textarea id="s-intro" placeholder="자유롭게 어필해보세요 :)"></textarea></div>
     <div class="field"><label>연락처 <span style="font-size:12px;">— 매칭 시 상대방에게만 전달</span></label><input type="tel" id="s-phone" placeholder="010-0000-0000"/></div>
     <div class="field"><label>비밀번호 <span style="font-size:12px;">— 나중에 수정할 때 사용</span></label><input type="password" id="s-pw" placeholder="숫자 4자리 추천"/></div>
     <div id="s-err" class="err"></div>
@@ -216,6 +220,10 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
       <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
     </select>
   </div>
+  <div class="field"><label>생년월일</label><input type="date" id="e-birth"/></div>
+  <div class="field"><label>하는 일</label><input type="text" id="e-job" placeholder="예: 회사원, 디자이너, 대학원생"/></div>
+  <div class="field"><label>취미</label><input type="text" id="e-hobby" placeholder="예: 등산, 영화감상, 요리"/></div>
+  <div class="field"><label>이상형</label><textarea id="e-ideal" style="height:72px;" placeholder="어떤 사람을 좋아하세요? :)"></textarea></div>
   <div class="field"><label>한 줄 소개</label><textarea id="e-intro"></textarea></div>
   <div class="field"><label>연락처</label><input type="tel" id="e-phone"/></div>
   <div class="field"><label>새 비밀번호 <span style="font-size:12px;">변경 시에만 입력</span></label><input type="password" id="e-pw" placeholder="변경하지 않으면 비워두세요"/></div>
@@ -343,6 +351,10 @@ window.doSignup = async function() {
   const name = document.getElementById('s-name').value.trim();
   const nick = document.getElementById('s-nick').value.trim();
   const mbti = document.getElementById('s-mbti').value;
+  const birth = document.getElementById('s-birth').value;
+  const job = document.getElementById('s-job').value.trim();
+  const hobby = document.getElementById('s-hobby').value.trim();
+  const ideal = document.getElementById('s-ideal').value.trim();
   const intro = document.getElementById('s-intro').value.trim();
   const phone = document.getElementById('s-phone').value.trim();
   const pw = document.getElementById('s-pw').value;
@@ -357,10 +369,10 @@ window.doSignup = async function() {
   if (existing.find(g=>g.nick===nick)) return showErr('s-err','이미 사용 중인 별명이에요.');
   showErr('s-err','');
   const id = Date.now().toString();
-  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, intro, phone, pw });
+  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, ideal, intro, phone, pw });
   myId = id;
   localStorage.setItem('ns_me', myId);
-  ['s-name','s-nick','s-intro','s-phone','s-pw'].forEach(i=>document.getElementById(i).value='');
+  ['s-name','s-nick','s-birth','s-job','s-hobby','s-ideal','s-intro','s-phone','s-pw'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('s-mbti').value='';
   myGender=null;
   document.getElementById('btn-m').className='gtab';
@@ -419,6 +431,12 @@ function renderHome() {
           ${rank?`<div class="rank-badge rank-${rank}">${rank}순위</div>`:''}
           <div class="pcard-nick">${g.nick}</div>
           ${g.mbti?`<span style="display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--warm);color:var(--brown);border:1px solid var(--border);margin-top:5px;">${g.mbti}</span>`:''}
+          <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.8;">
+            ${g.birth?`<div>🎂 ${g.birth}</div>`:''}
+            ${g.job?`<div>💼 ${g.job}</div>`:''}
+            ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
+            ${g.ideal?`<div>💘 이상형: ${g.ideal}</div>`:''}
+          </div>
           ${g.intro?`<div class="pcard-intro">${g.intro}</div>`:''}
           <div class="vote-btns">
             <button class="vbtn ${myVotes[1]&&String(myVotes[1])===String(g.id)?'active-1':''}" onclick="castVote(1,'${g.id}')">1순위</button>
@@ -462,6 +480,10 @@ window.showEditProfile = function() {
   if (!me) return;
   document.getElementById('e-nick').value = me.nick;
   document.getElementById('e-mbti').value = me.mbti||'';
+  document.getElementById('e-birth').value = me.birth||'';
+  document.getElementById('e-job').value = me.job||'';
+  document.getElementById('e-hobby').value = me.hobby||'';
+  document.getElementById('e-ideal').value = me.ideal||'';
   document.getElementById('e-intro').value = me.intro||'';
   document.getElementById('e-phone').value = me.phone||'';
   document.getElementById('e-pw').value = '';
@@ -474,13 +496,17 @@ window.saveProfile = async function() {
   if (!me) return;
   const nick = document.getElementById('e-nick').value.trim();
   const mbti = document.getElementById('e-mbti').value;
+  const birth = document.getElementById('e-birth').value;
+  const job = document.getElementById('e-job').value.trim();
+  const hobby = document.getElementById('e-hobby').value.trim();
+  const ideal = document.getElementById('e-ideal').value.trim();
   const intro = document.getElementById('e-intro').value.trim();
   const phone = document.getElementById('e-phone').value.trim();
   const pw = document.getElementById('e-pw').value;
   if (!nick) return showErr('e-err','별명을 입력해주세요!');
   if (!phone) return showErr('e-err','연락처를 입력해주세요!');
   if (Object.values(guests).find(g=>g.nick===nick && g.id!==myId)) return showErr('e-err','이미 사용 중인 별명이에요.');
-  const updated = {...me, nick, mbti, intro, phone};
+  const updated = {...me, nick, mbti, birth, job, hobby, ideal, intro, phone};
   if (pw) updated.pw = pw;
   await set(ref(db, 'guests/'+myId), updated);
   renderHome();
