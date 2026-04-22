@@ -396,7 +396,7 @@ function renderProfiles() {
     el.innerHTML = '<div class="empty">아직 이성 참가자가 없어요.<br>조금 더 기다려주세요 😊</div>';
     return;
   }
-  const rankOf = id => Object.entries(myVotes).find(([r,v])=>v===id)?.[0];
+  const rankOf = id => Object.entries(myVotes).find(([r,v])=>String(v)===String(id))?.[0];
   el.innerHTML = pool.map(g=>{
     const rank = rankOf(g.id);
     const cardClass = rank ? `pcard voted-${rank}` : 'pcard';
@@ -419,14 +419,13 @@ function renderProfiles() {
 
 function castVote(rank, targetId) {
   if (!myId) return;
+  const tid = String(targetId);
   if (!votes[myId]) votes[myId] = {};
   const v = votes[myId];
-  // remove if already that rank
-  if (v[rank] === targetId) { delete v[rank]; }
+  if (v[rank] === tid) { delete v[rank]; }
   else {
-    // remove target from other ranks
-    Object.keys(v).forEach(r=>{ if(v[r]===targetId) delete v[r]; });
-    v[rank] = targetId;
+    Object.keys(v).forEach(r=>{ if(v[r]===tid) delete v[r]; });
+    v[rank] = tid;
   }
   save();
   renderProfiles();
@@ -526,8 +525,8 @@ function switchTab(name, el) {
 }
 
 function getRankScore(voterId, targetId) {
-  const v = votes[voterId] || {};
-  const rank = Object.entries(v).find(([r, id]) => Number(id) === targetId)?.[0];
+  const v = votes[String(voterId)] || votes[voterId] || {};
+  const rank = Object.entries(v).find(([r, id]) => String(id) === String(targetId))?.[0];
   return rank === '1' ? 3 : rank === '2' ? 2 : rank === '3' ? 1 : 0;
 }
 
