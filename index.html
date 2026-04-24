@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
 <meta charset="UTF-8"/>
@@ -135,11 +136,13 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 <div class="wrap">
 
 <!-- 로딩 -->
+
 <div id="page-loading" class="page active">
   <div class="loading">로딩 중입니다. 잠깐만요 ❤️</div>
 </div>
 
 <!-- 메인: 로그인 / 회원가입 -->
+
 <div id="page-main" class="page">
   <div class="logo">남산<span>솔로</span></div>
   <div class="tagline">고운 &amp; 재원의 결혼을 축하하며 💌</div>
@@ -224,6 +227,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 홈 -->
+
 <div id="page-home" class="page">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
     <div class="logo" style="font-size:22px;">남산<span>솔로</span></div>
@@ -259,6 +263,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 프로필 수정 -->
+
 <div id="page-edit" class="page">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">
     <button class="btn-sm" onclick="renderHome();showPage('home');">← 뒤로</button>
@@ -303,6 +308,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 관리자 로그인 -->
+
 <div id="page-admin-login" class="page">
   <div class="logo">남산<span>솔로</span></div>
   <div class="tagline" style="margin-bottom:1.5rem;">관리자 / MC 입장</div>
@@ -313,6 +319,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 관리자 메인 -->
+
 <div id="page-admin" class="page">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
     <div class="logo" style="font-size:20px;">남산<span>솔로</span> <span style="font-size:14px;font-weight:400;color:var(--muted);font-family:'Noto Sans KR';">관리자</span></div>
@@ -321,6 +328,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   <div class="tab-bar">
     <div class="tab active" onclick="switchTab('list',this)">참가자</div>
     <div class="tab" onclick="switchTab('scores',this)">점수</div>
+    <div class="tab" onclick="switchTab('final',this)">최종 결과</div>
     <div class="tab" onclick="switchTab('mc',this)">MC 화면</div>
   </div>
   <div id="tab-list" class="tab-content active">
@@ -350,8 +358,12 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <button class="btn" style="margin-top:8px;color:var(--rose);" onclick="if(confirm('전체 초기화할까요?'))resetAll()">전체 초기화</button>
   </div>
   <div id="tab-scores" class="tab-content">
-    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;">점수 = 서로 준 순위 점수의 합 (1순위×3 + 2순위×2 + 3순위×1)<br>둘 다 선택해야 매칭됩니다.</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;">모든 상호 매칭 쌍을 점수 높은 순으로 표시 (중복 포함)</p>
     <div id="score-list"></div>
+  </div>
+  <div id="tab-final" class="tab-content">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1rem;">중복 제거 후 최종 매칭 커플 (점수 높은 순)</p>
+    <div id="final-list"></div>
   </div>
   <div id="tab-mc" class="tab-content">
     <div id="mc-screen"></div>
@@ -941,6 +953,7 @@ window.switchTab = function(name, el) {
   document.getElementById('tab-'+name).classList.add('active');
   if(name==='list') renderAdminList();
   if(name==='scores') renderScores();
+  if(name==='final') renderFinal();
   if(name==='mc') renderMC();
 };
 
@@ -959,26 +972,25 @@ function getMatches() {
     females.forEach(f=>{
       const mScore=getRankScore(m.id,f.id);
       const fScore=getRankScore(f.id,m.id);
-      allPairs.push({m,f,mScore,fScore,mutual:mScore+fScore});
+      if(mScore>0&&fScore>0) allPairs.push({m,f,mScore,fScore,mutual:mScore+fScore});
     });
   });
   allPairs.sort((a,b)=>b.mutual-a.mutual);
   const pairs=[], usedM=new Set(), usedF=new Set();
   allPairs.forEach(p=>{
-    if(p.mScore===0||p.fScore===0)return;
     if(!usedM.has(p.m.id)&&!usedF.has(p.f.id)){
       pairs.push(p); usedM.add(p.m.id); usedF.add(p.f.id);
     }
   });
-  return {pairs};
+  return {pairs, allPairs};
 }
 
 function renderScores() {
-  const {pairs}=getMatches();
+  const {allPairs}=getMatches();
   const el=document.getElementById('score-list');
-  if(!pairs.length){el.innerHTML='<div class="empty">아직 상호 매칭된 커플이 없어요.</div>';return;}
-  el.innerHTML=pairs.map((p,i)=>`
-    <div class="acard" style="${i<2?'border-color:var(--rose);':''}">
+  if(!allPairs.length){el.innerHTML='<div class="empty">아직 상호 매칭된 쌍이 없어요.</div>';return;}
+  el.innerHTML=allPairs.map(p=>`
+    <div class="acard">
       <div class="acard-top">
         <div style="flex:1;min-width:0;">
           <span style="font-weight:600;">${p.m.nick} &amp; ${p.f.nick}</span><br>
@@ -988,6 +1000,24 @@ function renderScores() {
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:5px;">
         ${p.m.nick} → ${p.f.nick}: ${p.mScore}점 &nbsp;|&nbsp; ${p.f.nick} → ${p.m.nick}: ${p.fScore}점
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px;">${p.m.phone} · ${p.f.phone}</div>
+    </div>`).join('');
+}
+
+function renderFinal() {
+  const {pairs}=getMatches();
+  const el=document.getElementById('final-list');
+  if(!pairs.length){el.innerHTML='<div class="empty">아직 최종 매칭 커플이 없어요.</div>';return;}
+  el.innerHTML=pairs.map((p,i)=>`
+    <div class="acard" style="${i<2?'border-color:var(--rose);':''}">
+      <div class="acard-top">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;color:var(--muted);">${i+1}위 커플</div>
+          <span style="font-weight:600;">${p.m.nick} &amp; ${p.f.nick}</span><br>
+          <span style="font-size:11px;color:var(--muted);">(${p.m.name} · ${p.f.name})</span>
+        </div>
+        <span class="score-chip">${p.mutual}점</span>
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:3px;">${p.m.phone} · ${p.f.phone}</div>
     </div>`).join('');
@@ -1007,7 +1037,6 @@ function renderMC() {
         <div class="game-badge">🎮 커플 게임 ${i+1}팀</div>
         <div style="font-size:28px;margin:0.5rem 0;">❤️</div>
         <div class="mc-names">${p.m.nick} &amp; ${p.f.nick}</div>
-        <div style="font-size:13px;color:var(--rose);font-weight:600;margin-top:6px;">💘 매칭 점수 ${p.mutual}점</div>
         <div style="font-size:13px;color:var(--muted);margin-top:4px;">앞으로 나와주세요!</div>
       </div>`).join('')}
     ${rest.length?`
@@ -1016,7 +1045,6 @@ function renderMC() {
         ${rest.map(p=>`
           <div class="mc-rest-item">
             <span>♥ ${p.m.nick} &amp; ${p.f.nick}</span>
-            <span style="font-size:12px;color:var(--brown);font-weight:600;">${p.mutual}점</span>
           </div>`).join('')}
       </div>`:''}
     <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:1rem;">연락처는 관리자가 개별 전달합니다</div>`;
@@ -1049,5 +1077,6 @@ async function init() {
 
 init();
 </script>
+
 </body>
 </html>
