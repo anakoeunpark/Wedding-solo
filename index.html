@@ -214,18 +214,16 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <button class="btn-sm" onclick="doLogout()">로그아웃</button>
   </div>
   <div class="my-card">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button class="btn-sm" onclick="showEditProfile()">수정</button>
+    </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
       <div id="my-photo"></div>
-      <div style="width:100%;text-align:center;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div style="flex:1;">
-            <div style="font-size:18px;font-weight:600;color:var(--dark);" id="my-nick"></div>
-            <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="my-meta"></div>
-          </div>
-          <button class="btn-sm" onclick="showEditProfile()">수정</button>
-        </div>
-        <div style="font-size:14px;color:var(--muted);margin-top:8px;line-height:1.6;text-align:left;" id="my-intro"></div>
+      <div style="text-align:center;">
+        <div style="font-size:18px;font-weight:600;color:var(--dark);" id="my-nick"></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="my-meta"></div>
       </div>
+      <div style="font-size:14px;color:var(--muted);line-height:1.6;text-align:center;width:100%;" id="my-intro"></div>
     </div>
   </div>
   <div id="vote-area">
