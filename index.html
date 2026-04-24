@@ -300,13 +300,13 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <div class="divider"></div>
     <!-- 단계 컨트롤 -->
     <div style="margin-bottom:0.75rem;">
-      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">현재 단계</div>
-      <div style="display:flex;gap:8px;margin-bottom:12px;">
-        <div id="stage-badge-register" style="flex:1;text-align:center;padding:8px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;">📝 등록 중</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">현재 단계 — 클릭해서 변경</div>
+      <div style="display:flex;gap:8px;">
+        <div id="stage-badge-register" onclick="setStage('register')" style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;cursor:pointer;">📝 등록 중</div>
         <div style="display:flex;align-items:center;color:var(--border);">→</div>
-        <div id="stage-badge-voting" style="flex:1;text-align:center;padding:8px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;">🗳 투표 중</div>
+        <div id="stage-badge-voting" onclick="setStage('voting')" style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;cursor:pointer;">🗳 투표 중</div>
         <div style="display:flex;align-items:center;color:var(--border);">→</div>
-        <div id="stage-badge-finished" style="flex:1;text-align:center;padding:8px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;">🎉 마감</div>
+        <div id="stage-badge-finished" onclick="setStage('finished')" style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;cursor:pointer;">🎉 마감</div>
       </div>
       <div id="stage-btns"></div>
     </div>
@@ -690,9 +690,9 @@ function renderAdmin() {
 
 function renderStageBtns() {
   const badges = {
-    register: { id: 'stage-badge-register', label: '📝 등록 중' },
-    voting:   { id: 'stage-badge-voting',   label: '🗳 투표 중' },
-    finished: { id: 'stage-badge-finished', label: '🎉 마감' }
+    register: { id: 'stage-badge-register' },
+    voting:   { id: 'stage-badge-voting' },
+    finished: { id: 'stage-badge-finished' }
   };
   Object.entries(badges).forEach(([s, {id}]) => {
     const el = document.getElementById(id);
@@ -707,17 +707,7 @@ function renderStageBtns() {
       el.style.borderColor='var(--border)'; el.style.fontWeight='400';
     }
   });
-  const btns = document.getElementById('stage-btns');
-  if (!btns) return;
-  if (stage === 'register') {
-    btns.innerHTML = `<button class="btn primary" onclick="setStage('voting')">🗳 투표 시작하기</button>`;
-  } else if (stage === 'voting') {
-    btns.innerHTML = `
-      <button class="btn primary" onclick="setStage('finished')">🎉 투표 마감하기</button>
-      <button class="btn" style="margin-top:8px;" onclick="setStage('register')">← 등록 중으로 되돌리기</button>`;
-  } else {
-    btns.innerHTML = `<button class="btn" onclick="setStage('voting')">← 투표 중으로 되돌리기</button>`;
-  }
+  document.getElementById('stage-btns').innerHTML = '';
 }
 
 window.setStage = async function(s) {
