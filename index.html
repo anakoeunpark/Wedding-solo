@@ -165,7 +165,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   <div id="form-signup" style="display:none;">
     <div class="notice">
       <strong>이벤트 안내</strong><br>
-      별명·소개·MBTI만 다른 참가자에게 공개돼요.<br>
+      별명·나이·MBTI·하는 일·취미·프로필 사진은 이성 참가자에게 공개돼요.<br>
       이름·연락처는 비공개이며 매칭 시 전달됩니다.
     </div>
     <div class="field">
@@ -197,8 +197,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <div class="field"><label>나이 <span style="font-size:12px;">선택</span></label><input type="number" id="s-birth" placeholder="예: 28" min="1" max="100"/></div>
     <div class="field"><label>하는 일 <span style="font-size:12px;">선택</span></label><input type="text" id="s-job" placeholder="예: 회사원, 디자이너, 대학원생"/></div>
     <div class="field"><label>취미 <span style="font-size:12px;">선택</span></label><input type="text" id="s-hobby" placeholder="예: 등산, 영화감상, 요리"/></div>
-    <div class="field"><label>이상형 <span style="font-size:12px;">선택</span></label><textarea id="s-ideal" placeholder="어떤 사람을 좋아하세요? :)" style="height:72px;"></textarea></div>
-    <div class="field"><label>한 줄 소개 <span style="font-size:12px;">선택</span></label><textarea id="s-intro" placeholder="자유롭게 어필해보세요 :)"></textarea></div>
     <div class="field"><label>연락처 <span style="font-size:12px;">— 매칭 시 상대방에게만 전달</span></label><input type="tel" id="s-phone" placeholder="010-0000-0000"/></div>
     <div class="field"><label>비밀번호 <span style="font-size:12px;">— 나중에 수정할 때 사용</span></label><input type="password" id="s-pw" placeholder="숫자 4자리 추천"/></div>
     <div id="s-err" class="err"></div>
@@ -268,8 +266,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   <div class="field"><label>나이</label><input type="number" id="e-birth" placeholder="예: 28" min="1" max="100"/></div>
   <div class="field"><label>하는 일</label><input type="text" id="e-job" placeholder="예: 회사원, 디자이너, 대학원생"/></div>
   <div class="field"><label>취미</label><input type="text" id="e-hobby" placeholder="예: 등산, 영화감상, 요리"/></div>
-  <div class="field"><label>이상형</label><textarea id="e-ideal" style="height:72px;" placeholder="어떤 사람을 좋아하세요? :)"></textarea></div>
-  <div class="field"><label>한 줄 소개</label><textarea id="e-intro"></textarea></div>
   <div class="field"><label>연락처</label><input type="tel" id="e-phone"/></div>
   <div class="field"><label>새 비밀번호 <span style="font-size:12px;">변경 시에만 입력</span></label><input type="password" id="e-pw" placeholder="변경하지 않으면 비워두세요"/></div>
   <div id="e-err" class="err"></div>
@@ -455,8 +451,6 @@ window.doSignup = async function() {
   const birth = document.getElementById('s-birth').value;
   const job = document.getElementById('s-job').value.trim();
   const hobby = document.getElementById('s-hobby').value.trim();
-  const ideal = document.getElementById('s-ideal').value.trim();
-  const intro = document.getElementById('s-intro').value.trim();
   const phone = document.getElementById('s-phone').value.trim();
   const pw = document.getElementById('s-pw').value;
   if (!name) return showErr('s-err','이름을 입력해주세요!');
@@ -486,10 +480,10 @@ window.doSignup = async function() {
     }
   }
 
-  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, ideal, intro, phone, pw, photoURL });
+  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, phone, pw, photoURL });
   myId = id;
   localStorage.setItem('ns_me', myId);
-  ['s-name','s-nick','s-birth','s-job','s-hobby','s-ideal','s-intro','s-phone','s-pw'].forEach(i=>document.getElementById(i).value='');
+  ['s-name','s-nick','s-birth','s-job','s-hobby','s-phone','s-pw'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('s-mbti').value='';
   myGender=null;
   document.getElementById('btn-m').className='gtab';
@@ -587,9 +581,7 @@ function renderHome() {
             ${g.birth?`<div>🎂 ${g.birth}세</div>`:''}
             ${g.job?`<div>💼 ${g.job}</div>`:''}
             ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
-            ${g.ideal?`<div>💘 이상형: ${g.ideal}</div>`:''}
           </div>
-          ${g.intro?`<div class="pcard-intro">${g.intro}</div>`:''}
           ${!voteLocked?`
           <div class="vote-btns">
             <button class="vbtn ${myVotes[1]&&String(myVotes[1])===String(g.id)?'active-1':''}" onclick="castVote(1,'${g.id}')">1순위</button>
@@ -636,8 +628,6 @@ window.showEditProfile = function() {
   document.getElementById('e-birth').value = me.birth||'';
   document.getElementById('e-job').value = me.job||'';
   document.getElementById('e-hobby').value = me.hobby||'';
-  document.getElementById('e-ideal').value = me.ideal||'';
-  document.getElementById('e-intro').value = me.intro||'';
   document.getElementById('e-phone').value = me.phone||'';
   document.getElementById('e-pw').value = '';
   // 기존 사진 표시
@@ -656,14 +646,12 @@ window.saveProfile = async function() {
   const birth = document.getElementById('e-birth').value;
   const job = document.getElementById('e-job').value.trim();
   const hobby = document.getElementById('e-hobby').value.trim();
-  const ideal = document.getElementById('e-ideal').value.trim();
-  const intro = document.getElementById('e-intro').value.trim();
   const phone = document.getElementById('e-phone').value.trim();
   const pw = document.getElementById('e-pw').value;
   if (!nick) return showErr('e-err','별명을 입력해주세요!');
   if (!phone) return showErr('e-err','연락처를 입력해주세요!');
   if (Object.values(guests).find(g=>g.nick===nick && g.id!==myId)) return showErr('e-err','이미 사용 중인 별명이에요.');
-  const updated = {...me, nick, mbti, birth, job, hobby, ideal, intro, phone};
+  const updated = {...me, nick, mbti, birth, job, hobby, phone};
   if (pw) updated.pw = pw;
 
   // 새 사진 업로드
@@ -770,8 +758,6 @@ function renderAdminList() {
           <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.9;">
             ${g.birth?`<span style="margin-right:12px;">🎂 ${g.birth}세</span>`:''}${g.mbti?`<span style="margin-right:12px;">🧠 ${g.mbti}</span>`:''}${g.job?`<span>💼 ${g.job}</span>`:''}
             ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
-            ${g.ideal?`<div>💘 이상형: ${g.ideal}</div>`:''}
-            ${g.intro?`<div>💬 ${g.intro}</div>`:''}
           </div>
           <div style="font-size:12px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">${g.phone}</div>
         </div>
