@@ -314,12 +314,14 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <!-- 단계 컨트롤 -->
     <div style="margin-bottom:0.75rem;">
       <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">현재 단계 — 클릭해서 변경</div>
-      <div style="display:flex;gap:8px;">
-        <div id="stage-badge-register" onclick="setStage('register')" style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;cursor:pointer;">📝 등록 중</div>
-        <div style="display:flex;align-items:center;color:var(--border);">→</div>
-        <div id="stage-badge-voting" onclick="setStage('voting')" style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;cursor:pointer;">🗳 투표 중</div>
-        <div style="display:flex;align-items:center;color:var(--border);">→</div>
-        <div id="stage-badge-finished" onclick="setStage('finished')" style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;cursor:pointer;">🎉 마감</div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;gap:4px;align-items:center;">
+        <div id="stage-badge-register" onclick="setStage('register')" style="text-align:center;padding:10px 4px;border-radius:10px;font-size:11px;border:1px solid var(--border);color:var(--muted);background:#fff;cursor:pointer;">📝<br>등록 중</div>
+        <div style="color:var(--border);font-size:11px;">→</div>
+        <div id="stage-badge-open" onclick="setStage('open')" style="text-align:center;padding:10px 4px;border-radius:10px;font-size:11px;border:1px solid var(--border);color:var(--muted);background:#fff;cursor:pointer;">👀<br>프로필 공개</div>
+        <div style="color:var(--border);font-size:11px;">→</div>
+        <div id="stage-badge-voting" onclick="setStage('voting')" style="text-align:center;padding:10px 4px;border-radius:10px;font-size:11px;border:1px solid var(--border);color:var(--muted);background:#fff;cursor:pointer;">🗳<br>투표 중</div>
+        <div style="color:var(--border);font-size:11px;">→</div>
+        <div id="stage-badge-finished" onclick="setStage('finished')" style="text-align:center;padding:10px 4px;border-radius:10px;font-size:11px;border:1px solid var(--border);color:var(--muted);background:#fff;cursor:pointer;">🎉<br>마감</div>
       </div>
       <div id="stage-btns"></div>
     </div>
@@ -363,7 +365,7 @@ let myId = null;
 let myGender = null;
 let guests = {};
 let votes = {};
-let stage = 'register'; // 'register' | 'voting' | 'finished'
+let stage = 'register'; // 'register' | 'open' | 'voting' | 'finished'
 
 // 페이지 전환
 function showPage(n) {
@@ -603,15 +605,35 @@ function renderHome() {
   const saveBtn = document.getElementById('save-vote-btn');
   const summaryEl = document.getElementById('home-vote-summary');
 
+  // register: 등록만 가능, 프로필 비공개
+  if (stage === 'register') {
+    voteArea.style.display = 'none';
+    closedBanner.style.display = 'block';
+    closedBanner.innerHTML = `
+      <div style="font-family:'Gowun Batang',serif;font-size:18px;margin-bottom:12px;color:var(--dark);">💌 등록해주셔서 감사해요!</div>
+      <div style="font-size:13px;color:var(--muted);line-height:2.2;text-align:left;">
+        <div>1 &nbsp; 결혼식 당일 이성의 프로필이 공개됩니다!</div>
+        <div>2 &nbsp; 2부 피로연 시작을 알리면 마음에 드는<br>&nbsp;&nbsp;&nbsp;&nbsp; 1위·2위·3위 이성을 투표할 수 있습니다.</div>
+        <div>3 &nbsp; 매칭 결과는 2부 피로연의 마지막 순서<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong style="color:var(--dark);">[남산솔로]</strong>에서 신랑 신부가 공개합니다!</div>
+      </div>`;
+    return;
+  }
+
+  // finished: 마감
   if (stage === 'finished') {
     voteArea.style.display = 'none';
     closedBanner.style.display = 'block';
+    closedBanner.innerHTML = `
+      <div style="font-family:'Gowun Batang',serif;font-size:18px;margin-bottom:6px;">투표가 마감됐어요</div>
+      <div style="font-size:14px;color:var(--muted);">곧 MC가 결과를 발표할 예정이에요 💌</div>`;
     return;
   }
 
   voteArea.style.display = 'block';
   closedBanner.style.display = 'none';
 
+  // open: 프로필 공개, 투표 잠김
+  // voting: 프로필 공개, 투표 가능
   const voteLocked = stage !== 'voting';
   if (voteLocked) {
     voteStatusBanner.style.display = 'block';
@@ -763,16 +785,23 @@ function renderAdmin() {
 function renderStageBtns() {
   const badges = {
     register: { id: 'stage-badge-register' },
+    open:     { id: 'stage-badge-open' },
     voting:   { id: 'stage-badge-voting' },
     finished: { id: 'stage-badge-finished' }
+  };
+  const colors = {
+    register: { bg: 'var(--warm)', color: 'var(--brown)', border: 'var(--border)' },
+    open:     { bg: 'var(--blue-light)', color: 'var(--blue)', border: '#b0c0e0' },
+    voting:   { bg: 'var(--rose-light)', color: 'var(--rose)', border: '#e0b8aa' },
+    finished: { bg: '#e8f5e9', color: '#2e7d32', border: '#a5d6a7' },
   };
   Object.entries(badges).forEach(([s, {id}]) => {
     const el = document.getElementById(id);
     if (!el) return;
     if (s === stage) {
-      el.style.background = s==='register'?'var(--blue-light)':s==='voting'?'var(--rose-light)':'var(--warm)';
-      el.style.color = s==='register'?'var(--blue)':s==='voting'?'var(--rose)':'var(--brown)';
-      el.style.borderColor = s==='register'?'#b0c0e0':s==='voting'?'#e0b8aa':'var(--border)';
+      el.style.background = colors[s].bg;
+      el.style.color = colors[s].color;
+      el.style.borderColor = colors[s].border;
       el.style.fontWeight = '600';
     } else {
       el.style.background='#fff'; el.style.color='var(--muted)';
@@ -790,12 +819,14 @@ function updateStats() {
   const list = Object.values(guests);
   const ms=list.filter(g=>g.gender==='M').length, fs=list.filter(g=>g.gender==='F').length;
   const voted=Object.keys(votes).length, unvoted=list.length-voted;
-  const stageLabel = stage==='register'?'📝 등록 중':stage==='voting'?'🗳 투표 중':'🎉 마감';
+  const stageLabel = stage==='register'?'📝 등록 중':stage==='open'?'👀 프로필 공개':stage==='voting'?'🗳 투표 중':'🎉 마감';
   const stageColor = stage==='register'
+    ?'background:var(--warm);color:var(--brown);border-color:var(--border);'
+    :stage==='open'
     ?'background:var(--blue-light);color:var(--blue);border-color:#b0c0e0;'
     :stage==='voting'
     ?'background:var(--rose-light);color:var(--rose);border-color:#e0b8aa;'
-    :'background:var(--warm);color:var(--brown);border-color:var(--border);';
+    :'background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7;';
   document.getElementById('admin-stats').innerHTML=`
     <span class="stat-pill stat-m">남자 ${ms}명</span>
     <span class="stat-pill stat-f">여자 ${fs}명</span>
