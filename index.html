@@ -169,11 +169,15 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
       이름·연락처는 비공개이며 매칭 시 전달됩니다.
     </div>
     <div class="field">
-      <label>프로필 사진 <span style="font-size:12px;">선택</span></label>
-      <div id="s-photo-preview" style="display:none;margin-bottom:8px;">
-        <img id="s-photo-img" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);"/>
+      <label>프로필 사진 <span style="color:var(--rose);font-size:12px;">필수</span></label>
+      <div id="s-photo-preview" style="display:none;margin-bottom:10px;text-align:center;">
+        <img id="s-photo-img" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:2px solid var(--border);"/>
       </div>
-      <input type="file" id="s-photo" accept="image/*" onchange="previewPhoto('s')" style="font-size:13px;padding:8px;"/>
+      <label for="s-photo" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:12px;border:1.5px dashed var(--rose);background:var(--rose-light);color:var(--rose);font-size:14px;font-weight:500;cursor:pointer;">
+        📸 사진 선택하기
+      </label>
+      <input type="file" id="s-photo" accept="image/*" onchange="previewPhoto('s')" style="display:none;"/>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;text-align:center;">카메라 촬영 또는 갤러리에서 선택</div>
     </div>
     <div class="field"><label>이름 <span style="font-size:12px;">— 관리자에게만 공개</span></label><input type="text" id="s-name" placeholder="홍길동"/></div>
     <div class="field"><label>별명 <span style="font-size:12px;">— 프로필에 표시</span></label><input type="text" id="s-nick" placeholder="예: 웃음왕, 요리천재"/></div>
@@ -411,7 +415,12 @@ window.previewPhoto = function(prefix) {
     const img = document.getElementById(prefix+'-photo-img');
     img.src = e.target.result;
     img.style.display = 'block';
-    if (prefix === 's') document.getElementById('s-photo-preview').style.display = 'block';
+    if (prefix === 's') {
+      document.getElementById('s-photo-preview').style.display = 'block';
+      const lbl = document.querySelector('label[for="s-photo"]');
+      if (lbl) { lbl.textContent = '✅ 사진 선택 완료 — 다시 선택하려면 탭하세요'; lbl.style.background = '#e8f5e9'; lbl.style.color = '#2e7d32'; lbl.style.borderColor = '#a5d6a7'; }
+    }
+    if (prefix === 'e') document.getElementById('e-photo-img').style.display = 'block';
   };
   reader.readAsDataURL(file);
 };
@@ -458,6 +467,8 @@ window.doSignup = async function() {
   if (!myGender) return showErr('s-err','성별을 선택해주세요!');
   if (!phone) return showErr('s-err','연락처를 입력해주세요!');
   if (!pw) return showErr('s-err','비밀번호를 설정해주세요!');
+  const photoFile = document.getElementById('s-photo').files[0];
+  if (!photoFile) return showErr('s-err','프로필 사진을 선택해주세요! 📸');
   if (stage === 'finished') return showErr('s-err','등록이 마감됐어요.');
   const existing = Object.values(guests);
   if (existing.find(g=>g.name===name)) return showErr('s-err','이미 등록된 이름이에요. 로그인해주세요.');
@@ -467,7 +478,6 @@ window.doSignup = async function() {
 
   // 사진 업로드
   let photoURL = '';
-  const photoFile = document.getElementById('s-photo').files[0];
   if (photoFile) {
     try {
       showErr('s-err', '사진 업로드 중... ⏳');
