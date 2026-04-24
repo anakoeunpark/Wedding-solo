@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
 <meta charset="UTF-8"/>
@@ -112,17 +113,29 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 .mc-rest-item:last-child { border-bottom: none; }
 .closed-banner { background: var(--warm); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; text-align: center; }
 .loading { text-align: center; padding: 3rem 1rem; font-size: 14px; color: var(--muted); }
+.photo-circle {
+  width: 56px; height: 56px; border-radius: 50%; object-fit: cover;
+  border: 2px solid var(--border); flex-shrink: 0;
+}
+.photo-placeholder {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--warm); border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <!-- 로딩 -->
+
 <div id="page-loading" class="page active">
   <div class="loading">잠깐만요 💌</div>
 </div>
 
 <!-- 메인: 로그인 / 회원가입 -->
+
 <div id="page-main" class="page">
   <div class="logo">남산<span>솔로</span></div>
   <div class="tagline">고운 &amp; 재원의 결혼을 축하하며 💌</div>
@@ -135,7 +148,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
       <div>2&nbsp; 등록 후 이성 참가자들의 프로필을 자유롭게 구경하세요</div>
       <div>3&nbsp; 2부 피로연이 시작되면 마음에 드는 분을 <strong style="color:var(--text);">1·2·3순위</strong>로 투표하세요</div>
       <div>4&nbsp; <strong style="color:var(--text);">[남산솔로]</strong> 타임에 서로의 점수를 합산해 매칭 커플을 발표합니다! 🎉</div>
-      <div>*&nbsp; 등록한 이름과 비밀번호로 프로필 및 투표 순위를 수정할 수 있습니다</div>
     </div>
   </div>
 
@@ -155,6 +167,13 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
       <strong>이벤트 안내</strong><br>
       별명·소개·MBTI만 다른 참가자에게 공개돼요.<br>
       이름·연락처는 비공개이며 매칭 시 전달됩니다.
+    </div>
+    <div class="field">
+      <label>프로필 사진 <span style="font-size:12px;">선택</span></label>
+      <div id="s-photo-preview" style="display:none;margin-bottom:8px;">
+        <img id="s-photo-img" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);"/>
+      </div>
+      <input type="file" id="s-photo" accept="image/*" onchange="previewPhoto('s')" style="font-size:13px;padding:8px;"/>
     </div>
     <div class="field"><label>이름 <span style="font-size:12px;">— 관리자에게만 공개</span></label><input type="text" id="s-name" placeholder="홍길동"/></div>
     <div class="field"><label>별명 <span style="font-size:12px;">— 프로필에 표시</span></label><input type="text" id="s-nick" placeholder="예: 웃음왕, 요리천재"/></div>
@@ -188,20 +207,26 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 홈 -->
+
 <div id="page-home" class="page">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
     <div class="logo" style="font-size:22px;">남산<span>솔로</span></div>
     <button class="btn-sm" onclick="doLogout()">로그아웃</button>
   </div>
   <div class="my-card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <div>
-        <div style="font-size:18px;font-weight:600;color:var(--dark);" id="my-nick"></div>
-        <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="my-meta"></div>
+    <div style="display:flex;gap:14px;align-items:flex-start;">
+      <div id="my-photo"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:18px;font-weight:600;color:var(--dark);" id="my-nick"></div>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="my-meta"></div>
+          </div>
+          <button class="btn-sm" onclick="showEditProfile()">수정</button>
+        </div>
+        <div style="font-size:14px;color:var(--muted);margin-top:8px;line-height:1.6;" id="my-intro"></div>
       </div>
-      <button class="btn-sm" onclick="showEditProfile()">수정</button>
     </div>
-    <div style="font-size:14px;color:var(--muted);margin-top:8px;line-height:1.6;" id="my-intro"></div>
   </div>
   <div id="vote-area">
     <div id="vote-status-banner" style="display:none;font-size:13px;color:var(--brown);background:var(--warm);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:1rem;"></div>
@@ -218,10 +243,18 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 프로필 수정 -->
+
 <div id="page-edit" class="page">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">
     <button class="btn-sm" onclick="renderHome();showPage('home');">← 뒤로</button>
     <span style="font-size:17px;font-weight:600;color:var(--dark);">프로필 수정</span>
+  </div>
+  <div class="field">
+    <label>프로필 사진</label>
+    <div id="e-photo-preview" style="margin-bottom:8px;">
+      <img id="e-photo-img" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);display:none;"/>
+    </div>
+    <input type="file" id="e-photo" accept="image/*" onchange="previewPhoto('e')" style="font-size:13px;padding:8px;"/>
   </div>
   <div class="field"><label>별명</label><input type="text" id="e-nick"/></div>
   <div class="field">
@@ -246,6 +279,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 관리자 로그인 -->
+
 <div id="page-admin-login" class="page">
   <div class="logo">남산<span>솔로</span></div>
   <div class="tagline" style="margin-bottom:1.5rem;">관리자 / MC 입장</div>
@@ -256,6 +290,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 관리자 메인 -->
+
 <div id="page-admin" class="page">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
     <div class="logo" style="font-size:20px;">남산<span>솔로</span> <span style="font-size:14px;font-weight:400;color:var(--muted);font-family:'Noto Sans KR';">관리자</span></div>
@@ -288,6 +323,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCXO_96nGVVcEP7MP8eDICDD2dY5H8Jx2Q",
@@ -302,8 +338,9 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const storage = getStorage(app);
 
-const ADMIN_PASS = '1325';
+const ADMIN_PASS = '1234';
 let myId = null;
 let myGender = null;
 let guests = {};
@@ -360,6 +397,47 @@ function startListeners() {
   });
 }
 
+// 사진 미리보기
+window.previewPhoto = function(prefix) {
+  const file = document.getElementById(prefix+'-photo').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById(prefix+'-photo-img');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    if (prefix === 's') document.getElementById('s-photo-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+};
+
+// 사진 압축 후 업로드
+async function uploadPhoto(file, guestId) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 400;
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+        else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(async blob => {
+          const photoRef = sref(storage, `photos/${guestId}.jpg`);
+          await uploadBytes(photoRef, blob);
+          const url = await getDownloadURL(photoRef);
+          resolve(url);
+        }, 'image/jpeg', 0.75);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 // 회원가입
 window.doSignup = async function() {
   const name = document.getElementById('s-name').value.trim();
@@ -383,7 +461,23 @@ window.doSignup = async function() {
   if (existing.find(g=>g.nick===nick)) return showErr('s-err','이미 사용 중인 별명이에요.');
   showErr('s-err','');
   const id = Date.now().toString();
-  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, ideal, intro, phone, pw });
+
+  // 사진 업로드
+  let photoURL = '';
+  const photoFile = document.getElementById('s-photo').files[0];
+  if (photoFile) {
+    try {
+      showErr('s-err', '사진 업로드 중... ⏳');
+      document.getElementById('s-err').style.color = 'var(--brown)';
+      photoURL = await uploadPhoto(photoFile, id);
+      showErr('s-err', '');
+      document.getElementById('s-err').style.color = 'var(--rose)';
+    } catch(e) {
+      showErr('s-err', '사진 업로드 실패. 사진 없이 등록할게요.');
+    }
+  }
+
+  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, ideal, intro, phone, pw, photoURL });
   myId = id;
   localStorage.setItem('ns_me', myId);
   ['s-name','s-nick','s-birth','s-job','s-hobby','s-ideal','s-intro','s-phone','s-pw'].forEach(i=>document.getElementById(i).value='');
@@ -425,6 +519,13 @@ function renderHome() {
   document.getElementById('my-meta').innerHTML =
     `${me.gender==='M'?'<span style="color:var(--blue);">남자</span>':'<span style="color:var(--rose);">여자</span>'}${me.mbti?' &nbsp;·&nbsp; '+me.mbti:''}`;
   document.getElementById('my-intro').textContent = me.intro||'';
+  // 내 사진
+  const myPhotoEl = document.getElementById('my-photo');
+  if (me.photoURL) {
+    myPhotoEl.innerHTML = `<img src="${me.photoURL}" class="photo-circle"/>`;
+  } else {
+    myPhotoEl.innerHTML = `<div class="photo-placeholder">${me.gender==='M'?'👨':'👩'}</div>`;
+  }
   const voteArea = document.getElementById('vote-area');
   const closedBanner = document.getElementById('closed-banner');
   const voteStatusBanner = document.getElementById('vote-status-banner');
@@ -458,9 +559,16 @@ function renderHome() {
       return `
         <div class="${rank&&!voteLocked?'pcard voted-'+rank:'pcard'}">
           ${rank&&!voteLocked?`<div class="rank-badge rank-${rank}">${rank}순위</div>`:''}
-          <div class="pcard-nick">${g.nick}</div>
-          ${g.mbti?`<span style="display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--warm);color:var(--brown);border:1px solid var(--border);margin-top:5px;">${g.mbti}</span>`:''}
-          <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.8;">
+          <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:8px;">
+            ${g.photoURL
+              ? `<img src="${g.photoURL}" class="photo-circle"/>`
+              : `<div class="photo-placeholder">${g.gender==='M'?'👨':'👩'}</div>`}
+            <div style="flex:1;min-width:0;">
+              <div class="pcard-nick">${g.nick}</div>
+              ${g.mbti?`<span style="display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--warm);color:var(--brown);border:1px solid var(--border);margin-top:4px;">${g.mbti}</span>`:''}
+            </div>
+          </div>
+          <div style="font-size:13px;color:var(--muted);margin-top:2px;line-height:1.8;">
             ${g.birth?`<div>🎂 ${g.birth}세</div>`:''}
             ${g.job?`<div>💼 ${g.job}</div>`:''}
             ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
@@ -517,6 +625,10 @@ window.showEditProfile = function() {
   document.getElementById('e-intro').value = me.intro||'';
   document.getElementById('e-phone').value = me.phone||'';
   document.getElementById('e-pw').value = '';
+  // 기존 사진 표시
+  const eImg = document.getElementById('e-photo-img');
+  if (me.photoURL) { eImg.src = me.photoURL; eImg.style.display = 'block'; }
+  else { eImg.style.display = 'none'; }
   showErr('e-err','');
   showPage('edit');
 };
@@ -538,6 +650,15 @@ window.saveProfile = async function() {
   if (Object.values(guests).find(g=>g.nick===nick && g.id!==myId)) return showErr('e-err','이미 사용 중인 별명이에요.');
   const updated = {...me, nick, mbti, birth, job, hobby, ideal, intro, phone};
   if (pw) updated.pw = pw;
+
+  // 새 사진 업로드
+  const photoFile = document.getElementById('e-photo').files[0];
+  if (photoFile) {
+    try {
+      updated.photoURL = await uploadPhoto(photoFile, myId);
+    } catch(e) {}
+  }
+
   await set(ref(db, 'guests/'+myId), updated);
   renderHome();
   showPage('home');
@@ -576,22 +697,29 @@ function renderAdminList() {
   if(!list.length){el.innerHTML='<div class="empty">아직 참가자가 없어요.</div>';return;}
   el.innerHTML=list.map(g=>`
     <div class="acard">
-      <div class="acard-top">
-        <div>
-          <span style="font-weight:600;font-size:15px;">${g.nick}</span>
-          <span style="font-size:13px;color:var(--muted);margin-left:5px;">(${g.name})</span>
-          <span style="font-size:12px;padding:2px 8px;border-radius:999px;margin-left:6px;${g.gender==='M'?'background:var(--blue-light);color:var(--blue);':'background:var(--rose-light);color:var(--rose);'}">${g.gender==='M'?'남':'여'}</span>
-          ${votes[g.id]?'<span style="font-size:11px;color:var(--muted);margin-left:6px;">✓ 투표완료</span>':''}
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        ${g.photoURL
+          ? `<img src="${g.photoURL}" class="photo-circle"/>`
+          : `<div class="photo-placeholder">${g.gender==='M'?'👨':'👩'}</div>`}
+        <div style="flex:1;min-width:0;">
+          <div class="acard-top">
+            <div>
+              <span style="font-weight:600;font-size:15px;">${g.nick}</span>
+              <span style="font-size:13px;color:var(--muted);margin-left:5px;">(${g.name})</span>
+              <span style="font-size:12px;padding:2px 8px;border-radius:999px;margin-left:6px;${g.gender==='M'?'background:var(--blue-light);color:var(--blue);':'background:var(--rose-light);color:var(--rose);'}">${g.gender==='M'?'남':'여'}</span>
+              ${votes[g.id]?'<span style="font-size:11px;color:var(--muted);margin-left:6px;">✓ 투표완료</span>':''}
+            </div>
+            <button class="xbtn" onclick="removeGuest('${g.id}')">×</button>
+          </div>
+          <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.9;">
+            ${g.birth?`<span style="margin-right:12px;">🎂 ${g.birth}세</span>`:''}${g.mbti?`<span style="margin-right:12px;">🧠 ${g.mbti}</span>`:''}${g.job?`<span>💼 ${g.job}</span>`:''}
+            ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
+            ${g.ideal?`<div>💘 이상형: ${g.ideal}</div>`:''}
+            ${g.intro?`<div>💬 ${g.intro}</div>`:''}
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">${g.phone}</div>
         </div>
-        <button class="xbtn" onclick="removeGuest('${g.id}')">×</button>
       </div>
-      <div style="font-size:13px;color:var(--muted);margin-top:8px;line-height:1.9;">
-        ${g.birth?`<span style="margin-right:12px;">🎂 ${g.birth}세</span>`:''}${g.mbti?`<span style="margin-right:12px;">🧠 ${g.mbti}</span>`:''}${g.job?`<span>💼 ${g.job}</span>`:''}
-        ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
-        ${g.ideal?`<div>💘 이상형: ${g.ideal}</div>`:''}
-        ${g.intro?`<div>💬 ${g.intro}</div>`:''}
-      </div>
-      <div style="font-size:12px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">${g.phone}</div>
     </div>`).join('');
 }
 
@@ -716,5 +844,6 @@ async function init() {
 
 init();
 </script>
+
 </body>
 </html>
