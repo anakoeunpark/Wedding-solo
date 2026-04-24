@@ -131,7 +131,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 <!-- 로딩 -->
 
 <div id="page-loading" class="page active">
-  <div class="loading">잠깐만요 💌</div>
+  <div class="loading">로딩 중입니다. 잠깐만요 ❤️</div>
 </div>
 
 <!-- 메인: 로그인 / 회원가입 -->
@@ -226,6 +226,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
         <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="my-meta"></div>
       </div>
       <div style="font-size:13px;color:var(--muted);line-height:2;text-align:left;width:100%;padding:0 4px;" id="my-details"></div>
+      <div style="width:100%;margin-top:12px;padding:0 4px;" id="my-vote-summary"></div>
     </div>
   </div>
   <div id="vote-area">
@@ -537,6 +538,28 @@ function renderHome() {
     ${me.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${me.job}</div>`:''}
     ${me.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${me.hobby}</div>`:''}
   `;
+
+  // 내 투표 현황
+  const myVotes = votes[myId] || {};
+  const voteRows = [1,2,3].map(rank => {
+    const tid = myVotes[rank];
+    const target = tid ? Object.values(guests).find(g=>String(g.id)===String(tid)) : null;
+    const rankColor = rank===1?'var(--rose)':rank===2?'var(--blue)':'var(--brown)';
+    const targetHtml = target
+      ? `<img src="${target.photoURL||''}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid var(--border);${!target.photoURL?'display:none;':''}"/>
+         ${!target.photoURL?`<span style="width:24px;height:24px;border-radius:50%;background:var(--warm);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:12px;">${target.gender==='M'?'👨':'👩'}</span>`:''}
+         <span style="color:var(--text);">${target.nick}</span>`
+      : `<span style="color:var(--muted);font-style:italic;">투표하지 않음</span>`;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);">
+      <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:${rankColor};color:#fff;white-space:nowrap;">${rank}순위</span>
+      ${targetHtml}
+    </div>`;
+  }).join('');
+
+  document.getElementById('my-vote-summary').innerHTML = `
+    <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px;">내 투표 현황</div>
+    ${voteRows}
+  `;
   // 내 사진
   const myPhotoEl = document.getElementById('my-photo');
   if (me.photoURL) {
@@ -572,8 +595,8 @@ function renderHome() {
   }
 
   const pool = Object.values(guests).filter(g=>g.gender!==me.gender);
-  const myVotes = votes[myId]||{};
-  const rankOf = id => Object.entries(myVotes).find(([r,v])=>String(v)===String(id))?.[0];
+  const myVotesMap = votes[myId]||{};
+  const rankOf = id => Object.entries(myVotesMap).find(([r,v])=>String(v)===String(id))?.[0];
   const el = document.getElementById('home-profiles');
   if (!pool.length) {
     el.innerHTML='<div class="empty">아직 이성 참가자가 없어요 😊</div>';
@@ -599,9 +622,9 @@ function renderHome() {
           </div>
           ${!voteLocked?`
           <div class="vote-btns">
-            <button class="vbtn ${myVotes[1]&&String(myVotes[1])===String(g.id)?'active-1':''}" onclick="castVote(1,'${g.id}')">1순위</button>
-            <button class="vbtn ${myVotes[2]&&String(myVotes[2])===String(g.id)?'active-2':''}" onclick="castVote(2,'${g.id}')">2순위</button>
-            <button class="vbtn ${myVotes[3]&&String(myVotes[3])===String(g.id)?'active-3':''}" onclick="castVote(3,'${g.id}')">3순위</button>
+            <button class="vbtn ${myVotesMap[1]&&String(myVotesMap[1])===String(g.id)?'active-1':''}" onclick="castVote(1,'${g.id}')">1순위</button>
+            <button class="vbtn ${myVotesMap[2]&&String(myVotesMap[2])===String(g.id)?'active-2':''}" onclick="castVote(2,'${g.id}')">2순위</button>
+            <button class="vbtn ${myVotesMap[3]&&String(myVotesMap[3])===String(g.id)?'active-3':''}" onclick="castVote(3,'${g.id}')">3순위</button>
           </div>`:''}
         </div>`;
     }).join('');
