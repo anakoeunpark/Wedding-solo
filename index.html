@@ -202,7 +202,18 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
         <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
       </select>
     </div>
-    <div class="field"><label>나이 <span style="font-size:12px;">선택</span></label><input type="number" id="s-birth" placeholder="예: 28" min="1" max="100"/></div>
+    <div class="field"><label>출생연도 <span style="font-size:12px;">선택</span></label>
+      <select id="s-birth">
+        <option value="">선택 안 함</option>
+        <option>1970</option><option>1971</option><option>1972</option><option>1973</option><option>1974</option>
+        <option>1975</option><option>1976</option><option>1977</option><option>1978</option><option>1979</option>
+        <option>1980</option><option>1981</option><option>1982</option><option>1983</option><option>1984</option>
+        <option>1985</option><option>1986</option><option>1987</option><option>1988</option><option>1989</option>
+        <option>1990</option><option>1991</option><option>1992</option><option selected>1993</option><option>1994</option>
+        <option>1995</option><option>1996</option><option>1997</option><option>1998</option><option>1999</option>
+        <option>2000</option><option>2001</option><option>2002</option><option>2003</option><option>2004</option><option>2005</option>
+      </select>
+    </div>
     <div class="field"><label>하는 일 <span style="font-size:12px;">선택</span></label><input type="text" id="s-job" placeholder="예: 회사원, 디자이너, 대학원생"/></div>
     <div class="field"><label>취미 <span style="font-size:12px;">선택</span></label><input type="text" id="s-hobby" placeholder="예: 등산, 영화감상, 요리"/></div>
     <div class="field"><label>연락처 <span style="font-size:12px;">— 매칭 시 상대방에게만 전달</span></label><input type="tel" id="s-phone" placeholder="010-0000-0000"/></div>
@@ -271,7 +282,18 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
       <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
     </select>
   </div>
-  <div class="field"><label>나이</label><input type="number" id="e-birth" placeholder="예: 28" min="1" max="100"/></div>
+  <div class="field"><label>출생연도</label>
+    <select id="e-birth">
+      <option value="">선택 안 함</option>
+      <option>1970</option><option>1971</option><option>1972</option><option>1973</option><option>1974</option>
+      <option>1975</option><option>1976</option><option>1977</option><option>1978</option><option>1979</option>
+      <option>1980</option><option>1981</option><option>1982</option><option>1983</option><option>1984</option>
+      <option>1985</option><option>1986</option><option>1987</option><option>1988</option><option>1989</option>
+      <option>1990</option><option>1991</option><option>1992</option><option selected>1993</option><option>1994</option>
+      <option>1995</option><option>1996</option><option>1997</option><option>1998</option><option>1999</option>
+      <option>2000</option><option>2001</option><option>2002</option><option>2003</option><option>2004</option><option>2005</option>
+    </select>
+  </div>
   <div class="field"><label>하는 일</label><input type="text" id="e-job" placeholder="예: 회사원, 디자이너, 대학원생"/></div>
   <div class="field"><label>취미</label><input type="text" id="e-hobby" placeholder="예: 등산, 영화감상, 요리"/></div>
   <div class="field"><label>연락처</label><input type="tel" id="e-phone"/></div>
@@ -566,7 +588,7 @@ function renderHome() {
   document.getElementById('my-meta').innerHTML =
     `${me.gender==='M'?'<span style="color:var(--blue);">남자</span>':'<span style="color:var(--rose);">여자</span>'}${me.mbti?' &nbsp;·&nbsp; '+me.mbti:''}`;
   document.getElementById('my-details').innerHTML = `
-    ${me.birth?`<div><span style="color:var(--brown);font-weight:500;">나이</span> &nbsp;${me.birth}세</div>`:''}
+    ${me.birth?`<div><span style="color:var(--brown);font-weight:500;">출생연도</span> &nbsp;${me.birth}년생</div>`:''}
     ${me.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${me.job}</div>`:''}
     ${me.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${me.hobby}</div>`:''}
   `;
@@ -658,7 +680,7 @@ function renderHome() {
             </div>
           </div>
           <div style="font-size:13px;color:var(--muted);margin-top:8px;line-height:2;">
-            ${g.birth?`<div><span style="color:var(--brown);font-weight:500;">나이</span> &nbsp;${g.birth}세</div>`:''}
+            ${g.birth?`<div><span style="color:var(--brown);font-weight:500;">출생연도</span> &nbsp;${g.birth}년생</div>`:''}
             ${g.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${g.job}</div>`:''}
             ${g.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${g.hobby}</div>`:''}
           </div>
@@ -704,7 +726,7 @@ window.showEditProfile = function() {
   if (!me) return;
   document.getElementById('e-nick').value = me.nick;
   document.getElementById('e-mbti').value = me.mbti||'';
-  document.getElementById('e-birth').value = me.birth||'';
+  document.getElementById('e-birth').value = me.birth||'1993';
   document.getElementById('e-job').value = me.job||'';
   document.getElementById('e-hobby').value = me.hobby||'';
   document.getElementById('e-phone').value = me.phone||'';
@@ -868,7 +890,7 @@ function renderAdminList() {
             </div>`;
           })()}
           <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.9;">
-            ${g.birth?`<span style="margin-right:12px;">🎂 ${g.birth}세</span>`:''}${g.mbti?`<span style="margin-right:12px;">🧠 ${g.mbti}</span>`:''}${g.job?`<span>💼 ${g.job}</span>`:''}
+            ${g.birth?`<span style="margin-right:12px;">🎂 ${g.birth}년생</span>`:''}${g.mbti?`<span style="margin-right:12px;">🧠 ${g.mbti}</span>`:''}${g.job?`<span>💼 ${g.job}</span>`:''}
             ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
           </div>
           <div style="font-size:12px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">${g.phone}</div>
