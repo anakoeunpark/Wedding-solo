@@ -304,7 +304,18 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   <div id="tab-list" class="tab-content active">
     <div id="admin-list"></div>
     <div class="divider"></div>
-    <button class="btn" id="toggle-btn" onclick="toggleVoting()">투표 마감하기</button>
+    <!-- 단계 컨트롤 -->
+    <div style="margin-bottom:0.75rem;">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">현재 단계</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <div id="stage-badge-register" style="flex:1;text-align:center;padding:8px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;">📝 등록 중</div>
+        <div style="display:flex;align-items:center;color:var(--border);">→</div>
+        <div id="stage-badge-voting" style="flex:1;text-align:center;padding:8px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;">🗳 투표 중</div>
+        <div style="display:flex;align-items:center;color:var(--border);">→</div>
+        <div id="stage-badge-finished" style="flex:1;text-align:center;padding:8px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);color:var(--muted);background:#fff;">🎉 마감</div>
+      </div>
+      <div id="stage-btns"></div>
+    </div>
     <button class="btn" style="margin-top:8px;color:var(--rose);" onclick="if(confirm('전체 초기화할까요?'))resetAll()">전체 초기화</button>
   </div>
   <div id="tab-scores" class="tab-content">
@@ -345,7 +356,7 @@ let myId = null;
 let myGender = null;
 let guests = {};
 let votes = {};
-let votingOpen = true;
+let stage = 'register'; // 'register' | 'voting' | 'finished'
 
 // 페이지 전환
 function showPage(n) {
@@ -390,8 +401,8 @@ function startListeners() {
       if (activeTab?.id === 'tab-mc') renderMC();
     }
   });
-  onValue(ref(db, 'settings/votingOpen'), snap => {
-    votingOpen = snap.val() === true;
+  onValue(ref(db, 'settings/stage'), snap => {
+    stage = snap.val() || 'register';
     if (document.getElementById('page-home').classList.contains('active')) renderHome();
     if (document.getElementById('page-admin').classList.contains('active')) renderAdmin();
   });
@@ -455,7 +466,7 @@ window.doSignup = async function() {
   if (!myGender) return showErr('s-err','성별을 선택해주세요!');
   if (!phone) return showErr('s-err','연락처를 입력해주세요!');
   if (!pw) return showErr('s-err','비밀번호를 설정해주세요!');
-  if (!votingOpen) return showErr('s-err','투표가 마감됐어요.');
+  if (stage === 'finished') return showErr('s-err','등록이 마감됐어요.');
   const existing = Object.values(guests);
   if (existing.find(g=>g.name===name)) return showErr('s-err','이미 등록된 이름이에요. 로그인해주세요.');
   if (existing.find(g=>g.nick===nick)) return showErr('s-err','이미 사용 중인 별명이에요.');
@@ -532,13 +543,19 @@ function renderHome() {
   const saveBtn = document.getElementById('save-vote-btn');
   const summaryEl = document.getElementById('home-vote-summary');
 
+  if (stage === 'finished') {
+    voteArea.style.display = 'none';
+    closedBanner.style.display = 'block';
+    return;
+  }
+
   voteArea.style.display = 'block';
   closedBanner.style.display = 'none';
 
-  const voteLocked = !votingOpen;
+  const voteLocked = stage !== 'voting';
   if (voteLocked) {
     voteStatusBanner.style.display = 'block';
-    voteStatusBanner.textContent = '⏳ 투표는 관리자가 시작하면 참여할 수 있어요. 지금은 프로필만 구경하세요!';
+    voteStatusBanner.textContent = '⏳ 투표는 2부가 시작되면 열려요. 지금은 프로필을 구경하세요!';
     saveBtn.style.display = 'none';
     summaryEl.style.display = 'none';
   } else {
@@ -677,18 +694,59 @@ window.checkAdminPw = function() {
 };
 
 function renderAdmin() {
-  updateStats(); renderAdminList();
-  document.getElementById('toggle-btn').textContent = votingOpen ? '투표 마감하기' : '투표 시작하기';
+  updateStats(); renderAdminList(); renderStageBtns();
 }
+
+function renderStageBtns() {
+  const badges = {
+    register: { id: 'stage-badge-register', label: '📝 등록 중' },
+    voting:   { id: 'stage-badge-voting',   label: '🗳 투표 중' },
+    finished: { id: 'stage-badge-finished', label: '🎉 마감' }
+  };
+  Object.entries(badges).forEach(([s, {id}]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (s === stage) {
+      el.style.background = s==='register'?'var(--blue-light)':s==='voting'?'var(--rose-light)':'var(--warm)';
+      el.style.color = s==='register'?'var(--blue)':s==='voting'?'var(--rose)':'var(--brown)';
+      el.style.borderColor = s==='register'?'#b0c0e0':s==='voting'?'#e0b8aa':'var(--border)';
+      el.style.fontWeight = '600';
+    } else {
+      el.style.background='#fff'; el.style.color='var(--muted)';
+      el.style.borderColor='var(--border)'; el.style.fontWeight='400';
+    }
+  });
+  const btns = document.getElementById('stage-btns');
+  if (!btns) return;
+  if (stage === 'register') {
+    btns.innerHTML = `<button class="btn primary" onclick="setStage('voting')">🗳 투표 시작하기</button>`;
+  } else if (stage === 'voting') {
+    btns.innerHTML = `
+      <button class="btn primary" onclick="setStage('finished')">🎉 투표 마감하기</button>
+      <button class="btn" style="margin-top:8px;" onclick="setStage('register')">← 등록 중으로 되돌리기</button>`;
+  } else {
+    btns.innerHTML = `<button class="btn" onclick="setStage('voting')">← 투표 중으로 되돌리기</button>`;
+  }
+}
+
+window.setStage = async function(s) {
+  await set(ref(db, 'settings/stage'), s);
+};
 
 function updateStats() {
   const list = Object.values(guests);
   const ms=list.filter(g=>g.gender==='M').length, fs=list.filter(g=>g.gender==='F').length;
+  const stageLabel = stage==='register'?'📝 등록 중':stage==='voting'?'🗳 투표 중':'🎉 마감';
+  const stageColor = stage==='register'
+    ?'background:var(--blue-light);color:var(--blue);border-color:#b0c0e0;'
+    :stage==='voting'
+    ?'background:var(--rose-light);color:var(--rose);border-color:#e0b8aa;'
+    :'background:var(--warm);color:var(--brown);border-color:var(--border);';
   document.getElementById('admin-stats').innerHTML=`
     <span class="stat-pill stat-m">남자 ${ms}명</span>
     <span class="stat-pill stat-f">여자 ${fs}명</span>
     <span class="stat-pill">투표완료 ${Object.keys(votes).length}명</span>
-    <span class="stat-pill" style="${votingOpen?'background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7;':'background:#fce8e8;color:#c62828;border-color:#ef9a9a;'}">${votingOpen?'투표 진행중':'투표 미시작/마감'}</span>`;
+    <span class="stat-pill" style="${stageColor}">${stageLabel}</span>`;
 }
 
 function renderAdminList() {
@@ -730,7 +788,13 @@ window.removeGuest = async function(id) {
 };
 
 window.toggleVoting = async function() {
-  await set(ref(db,'settings/votingOpen'), !votingOpen);
+  await set(ref(db,'settings/stage'), stage==='register'?'voting':stage==='voting'?'finished':'register');
+};
+
+window.resetAll = async function() {
+  await remove(ref(db,'guests'));
+  await remove(ref(db,'votes'));
+  await set(ref(db,'settings/stage'), 'register');
 };
 
 window.switchTab = function(name, el) {
@@ -820,12 +884,6 @@ function renderMC() {
       </div>`:''}
     <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:1rem;">연락처는 관리자가 개별 전달합니다</div>`;
 }
-
-window.resetAll = async function() {
-  await remove(ref(db,'guests'));
-  await remove(ref(db,'votes'));
-  await set(ref(db,'settings/votingOpen'), true);
-};
 
 // 초기화
 async function init() {
