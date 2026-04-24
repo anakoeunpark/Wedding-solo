@@ -160,7 +160,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <button class="ttab" id="ttab-signup" onclick="switchMainTab('signup')">처음 오셨나요?</button>
   </div>
   <div id="form-login">
-    <div class="field"><label>이름</label><input type="text" id="l-name" placeholder="홍길동" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="field"><label>연락처</label><input type="tel" id="l-phone" placeholder="010-0000-0000" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <div class="field"><label>비밀번호</label><input type="password" id="l-pw" placeholder="등록 시 설정한 비밀번호" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <div id="l-err" class="err"></div>
     <button class="btn primary" onclick="doLogin()">로그인</button>
@@ -501,7 +501,7 @@ window.doSignup = async function() {
   if (!photoFile) return showErr('s-err','프로필 사진을 선택해주세요! 📸');
   if (stage === 'finished') return showErr('s-err','등록이 마감됐어요.');
   const existing = Object.values(guests);
-  if (existing.find(g=>g.name===name)) return showErr('s-err','이미 등록된 이름이에요. 로그인해주세요.');
+  if (existing.find(g=>g.phone===phone)) return showErr('s-err','이미 등록된 연락처예요. 로그인해주세요.');
   if (existing.find(g=>g.nick===nick)) return showErr('s-err','이미 사용 중인 별명이에요.');
   showErr('s-err','');
   const id = Date.now().toString();
@@ -535,15 +535,15 @@ window.doSignup = async function() {
 
 // 로그인
 window.doLogin = async function() {
-  const name = document.getElementById('l-name').value.trim();
+  const phone = document.getElementById('l-phone').value.trim();
   const pw = document.getElementById('l-pw').value;
-  if (!name || !pw) return showErr('l-err','이름과 비밀번호를 입력해주세요.');
-  const guest = Object.values(guests).find(g=>g.name===name && g.pw===pw);
-  if (!guest) return showErr('l-err','이름 또는 비밀번호가 틀렸어요.');
+  if (!phone || !pw) return showErr('l-err','연락처와 비밀번호를 입력해주세요.');
+  const guest = Object.values(guests).find(g=>g.phone===phone && g.pw===pw);
+  if (!guest) return showErr('l-err','연락처 또는 비밀번호가 틀렸어요.');
   showErr('l-err','');
   myId = guest.id;
   localStorage.setItem('ns_me', myId);
-  document.getElementById('l-name').value='';
+  document.getElementById('l-phone').value='';
   document.getElementById('l-pw').value='';
   renderHome();
   showPage('home');
