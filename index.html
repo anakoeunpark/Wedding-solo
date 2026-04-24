@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="UTF-8"/>
@@ -136,13 +135,11 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 <div class="wrap">
 
 <!-- 로딩 -->
-
 <div id="page-loading" class="page active">
   <div class="loading">로딩 중입니다. 잠깐만요 ❤️</div>
 </div>
 
 <!-- 메인: 로그인 / 회원가입 -->
-
 <div id="page-main" class="page">
   <div class="logo">남산<span>솔로</span></div>
   <div class="tagline">고운 &amp; 재원의 결혼을 축하하며 💌</div>
@@ -216,7 +213,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 홈 -->
-
 <div id="page-home" class="page">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
     <div class="logo" style="font-size:22px;">남산<span>솔로</span></div>
@@ -251,7 +247,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 프로필 수정 -->
-
 <div id="page-edit" class="page">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">
     <button class="btn-sm" onclick="renderHome();showPage('home');">← 뒤로</button>
@@ -285,7 +280,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 관리자 로그인 -->
-
 <div id="page-admin-login" class="page">
   <div class="logo">남산<span>솔로</span></div>
   <div class="tagline" style="margin-bottom:1.5rem;">관리자 / MC 입장</div>
@@ -296,7 +290,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 관리자 메인 -->
-
 <div id="page-admin" class="page">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
     <div class="logo" style="font-size:20px;">남산<span>솔로</span> <span style="font-size:14px;font-weight:400;color:var(--muted);font-family:'Noto Sans KR';">관리자</span></div>
@@ -422,7 +415,20 @@ function startListeners() {
   });
 }
 
-// 사진 미리보기
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyShYBnrFdaKjgvs0p1OzwEvnq1g9-Dhxed33X8TdcN0ToIr_G1bQvpDvPqapUf2-E/exec';
+
+async function syncToSheets(guest) {
+  try {
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(guest)
+    });
+  } catch(e) {
+    console.log('sheets sync failed', e);
+  }
+}
 window.previewPhoto = function(prefix) {
   const file = document.getElementById(prefix+'-photo').files[0];
   if (!file) return;
@@ -507,6 +513,7 @@ window.doSignup = async function() {
   }
 
   await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, phone, pw, photoURL });
+  syncToSheets({ name, nick, gender: myGender, mbti, birth, job, hobby, phone });
   myId = id;
   localStorage.setItem('ns_me', myId);
   ['s-name','s-nick','s-birth','s-job','s-hobby','s-phone','s-pw'].forEach(i=>document.getElementById(i).value='');
@@ -982,6 +989,5 @@ async function init() {
 
 init();
 </script>
-
 </body>
 </html>
