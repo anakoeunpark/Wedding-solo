@@ -221,7 +221,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
         <div style="font-size:18px;font-weight:600;color:var(--dark);" id="my-nick"></div>
         <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="my-meta"></div>
       </div>
-      <div style="font-size:14px;color:var(--muted);line-height:1.6;text-align:center;width:100%;" id="my-intro"></div>
+      <div style="font-size:13px;color:var(--muted);line-height:2;text-align:left;width:100%;padding:0 4px;" id="my-details"></div>
     </div>
   </div>
   <div id="vote-area">
@@ -512,6 +512,7 @@ window.doLogout = function() {
   myId = null;
   localStorage.removeItem('ns_me');
   showPage('main');
+  switchMainTab('login');
 };
 
 // 홈 렌더링
@@ -521,7 +522,11 @@ function renderHome() {
   document.getElementById('my-nick').textContent = me.nick;
   document.getElementById('my-meta').innerHTML =
     `${me.gender==='M'?'<span style="color:var(--blue);">남자</span>':'<span style="color:var(--rose);">여자</span>'}${me.mbti?' &nbsp;·&nbsp; '+me.mbti:''}`;
-  document.getElementById('my-intro').textContent = me.intro||'';
+  document.getElementById('my-details').innerHTML = `
+    ${me.birth?`<div><span style="color:var(--brown);font-weight:500;">나이</span> &nbsp;${me.birth}세</div>`:''}
+    ${me.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${me.job}</div>`:''}
+    ${me.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${me.hobby}</div>`:''}
+  `;
   // 내 사진
   const myPhotoEl = document.getElementById('my-photo');
   if (me.photoURL) {
@@ -577,10 +582,10 @@ function renderHome() {
               ${g.mbti?`<span style="display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--warm);color:var(--brown);border:1px solid var(--border);margin-top:4px;">${g.mbti}</span>`:''}
             </div>
           </div>
-          <div style="font-size:13px;color:var(--muted);margin-top:2px;line-height:1.8;">
-            ${g.birth?`<div>🎂 ${g.birth}세</div>`:''}
-            ${g.job?`<div>💼 ${g.job}</div>`:''}
-            ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
+          <div style="font-size:13px;color:var(--muted);margin-top:8px;line-height:2;">
+            ${g.birth?`<div><span style="color:var(--brown);font-weight:500;">나이</span> &nbsp;${g.birth}세</div>`:''}
+            ${g.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${g.job}</div>`:''}
+            ${g.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${g.hobby}</div>`:''}
           </div>
           ${!voteLocked?`
           <div class="vote-btns">
