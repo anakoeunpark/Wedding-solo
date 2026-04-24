@@ -112,6 +112,13 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 .mc-rest-item { font-size: 15px; color: var(--text); padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 .mc-rest-item:last-child { border-bottom: none; }
 .closed-banner { background: var(--warm); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; text-align: center; }
+.filter-tab {
+  padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border);
+  background: #fff; color: var(--muted); font-size: 12px; font-family: inherit;
+  cursor: pointer; transition: all 0.15s;
+}
+.filter-tab:hover { background: var(--warm); }
+.active-filter { background: var(--dark); color: #fff; border-color: var(--dark); font-weight: 500; }
 .loading { text-align: center; padding: 3rem 1rem; font-size: 14px; color: var(--muted); }
 .photo-circle {
   width: 200px; height: 200px; border-radius: 50%; object-fit: cover;
@@ -301,6 +308,14 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <div class="tab" onclick="switchTab('mc',this)">MC 화면</div>
   </div>
   <div id="tab-list" class="tab-content active">
+    <!-- 필터 탭 -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;" id="admin-filter-tabs">
+      <button onclick="setAdminFilter('all')" id="filter-all" class="filter-tab active-filter">전체</button>
+      <button onclick="setAdminFilter('M')" id="filter-M" class="filter-tab">남자</button>
+      <button onclick="setAdminFilter('F')" id="filter-F" class="filter-tab">여자</button>
+      <button onclick="setAdminFilter('voted')" id="filter-voted" class="filter-tab">투표완료</button>
+      <button onclick="setAdminFilter('unvoted')" id="filter-unvoted" class="filter-tab">미투표</button>
+    </div>
     <div id="admin-list"></div>
     <div class="divider"></div>
     <!-- 단계 컨트롤 -->
@@ -717,6 +732,15 @@ window.checkAdminPw = function() {
   }
 };
 
+let adminFilter = 'all';
+
+window.setAdminFilter = function(filter) {
+  adminFilter = filter;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active-filter'));
+  document.getElementById('filter-'+filter).classList.add('active-filter');
+  renderAdminList();
+};
+
 function renderAdmin() {
   updateStats(); renderAdminList(); renderStageBtns();
 }
@@ -750,6 +774,7 @@ window.setStage = async function(s) {
 function updateStats() {
   const list = Object.values(guests);
   const ms=list.filter(g=>g.gender==='M').length, fs=list.filter(g=>g.gender==='F').length;
+  const voted=Object.keys(votes).length, unvoted=list.length-voted;
   const stageLabel = stage==='register'?'📝 등록 중':stage==='voting'?'🗳 투표 중':'🎉 마감';
   const stageColor = stage==='register'
     ?'background:var(--blue-light);color:var(--blue);border-color:#b0c0e0;'
@@ -759,14 +784,28 @@ function updateStats() {
   document.getElementById('admin-stats').innerHTML=`
     <span class="stat-pill stat-m">남자 ${ms}명</span>
     <span class="stat-pill stat-f">여자 ${fs}명</span>
-    <span class="stat-pill">투표완료 ${Object.keys(votes).length}명</span>
+    <span class="stat-pill">투표완료 ${voted}명</span>
     <span class="stat-pill" style="${stageColor}">${stageLabel}</span>`;
+
+  // 필터 탭 카운트 업데이트
+  const filterEl = document.getElementById('admin-filter-tabs');
+  if (filterEl) {
+    document.getElementById('filter-all').textContent = `전체 ${list.length}`;
+    document.getElementById('filter-M').textContent = `남자 ${ms}`;
+    document.getElementById('filter-F').textContent = `여자 ${fs}`;
+    document.getElementById('filter-voted').textContent = `투표완료 ${voted}`;
+    document.getElementById('filter-unvoted').textContent = `미투표 ${unvoted}`;
+  }
 }
 
 function renderAdminList() {
   const el=document.getElementById('admin-list');
-  const list = Object.values(guests);
-  if(!list.length){el.innerHTML='<div class="empty">아직 참가자가 없어요.</div>';return;}
+  let list = Object.values(guests);
+  if (adminFilter === 'M') list = list.filter(g=>g.gender==='M');
+  else if (adminFilter === 'F') list = list.filter(g=>g.gender==='F');
+  else if (adminFilter === 'voted') list = list.filter(g=>votes[g.id]);
+  else if (adminFilter === 'unvoted') list = list.filter(g=>!votes[g.id]);
+  if(!list.length){el.innerHTML='<div class="empty">해당하는 참가자가 없어요.</div>';return;}
   el.innerHTML=list.map(g=>`
     <div class="acard">
       <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
