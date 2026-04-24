@@ -219,7 +219,8 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <button class="btn-sm" onclick="doLogout()">로그아웃</button>
   </div>
   <div class="my-card">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:13px;font-weight:500;color:var(--muted);">내 프로필</span>
       <button class="btn-sm" onclick="showEditProfile()">수정</button>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
@@ -609,11 +610,11 @@ function renderHome() {
     voteArea.style.display = 'none';
     closedBanner.style.display = 'block';
     closedBanner.innerHTML = `
-      <div style="font-family:'Gowun Batang',serif;font-size:18px;margin-bottom:12px;color:var(--dark);">💌 등록해주셔서 감사해요!</div>
+      <div style="font-family:'Gowun Batang',serif;font-size:18px;margin-bottom:12px;color:var(--dark);">📅 5월 9일 프로필을 공개합니다</div>
       <div style="font-size:13px;color:var(--muted);line-height:2.2;text-align:left;">
-        <div>1 &nbsp; 결혼식 당일 이성의 프로필이 공개됩니다!</div>
-        <div>2 &nbsp; 2부 피로연 시작을 알리면 마음에 드는<br>&nbsp;&nbsp;&nbsp;&nbsp; 1위·2위·3위 이성을 투표할 수 있습니다.</div>
-        <div>3 &nbsp; 매칭 결과는 2부 피로연의 마지막 순서<br>&nbsp;&nbsp;&nbsp;&nbsp; <strong style="color:var(--dark);">[남산솔로]</strong>에서 신랑 신부가 공개합니다!</div>
+        <div>1 &nbsp; 5월 9일 결혼식 당일, 이성 참가자의 프로필이 공개돼요 💘</div>
+        <div>2 &nbsp; 2부 피로연이 시작되기 전까지 마음에 드는 분을<br>&nbsp;&nbsp;&nbsp;&nbsp; 1위·2위·3위로 투표해주세요</div>
+        <div>3 &nbsp; 매칭 결과는 <strong style="color:var(--dark);">[남산솔로]</strong>에서<br>&nbsp;&nbsp;&nbsp;&nbsp; 신랑·신부가 직접 발표합니다 🎉</div>
       </div>`;
     return;
   }
