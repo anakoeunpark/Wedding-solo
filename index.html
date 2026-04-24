@@ -760,6 +760,20 @@ function renderAdminList() {
             </div>
             <button class="xbtn" onclick="removeGuest('${g.id}')">×</button>
           </div>
+          ${(() => {
+            const r1 = Object.values(votes).filter(v=>String(v[1])===String(g.id)).length;
+            const r2 = Object.values(votes).filter(v=>String(v[2])===String(g.id)).length;
+            const r3 = Object.values(votes).filter(v=>String(v[3])===String(g.id)).length;
+            const total = r1 + r2 + r3;
+            if (total === 0) return '';
+            return `<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+              <span style="font-size:12px;color:var(--muted);">받은 투표</span>
+              ${r1?`<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--rose);color:#fff;">1순위 ${r1}표</span>`:''}
+              ${r2?`<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--blue);color:#fff;">2순위 ${r2}표</span>`:''}
+              ${r3?`<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--warm);color:var(--brown);border:1px solid var(--border);">3순위 ${r3}표</span>`:''}
+              <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:var(--warm);color:var(--text);border:1px solid var(--border);">총 ${total}명</span>
+            </div>`;
+          })()}
           <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.9;">
             ${g.birth?`<span style="margin-right:12px;">🎂 ${g.birth}세</span>`:''}${g.mbti?`<span style="margin-right:12px;">🧠 ${g.mbti}</span>`:''}${g.job?`<span>💼 ${g.job}</span>`:''}
             ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
