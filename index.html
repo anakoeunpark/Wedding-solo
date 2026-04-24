@@ -419,11 +419,19 @@ const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyShYBnrFdaKjgvs0p1O
 
 async function syncToSheets(guest) {
   try {
+    const params = new URLSearchParams();
+    params.append('name', guest.name || '');
+    params.append('nick', guest.nick || '');
+    params.append('gender', guest.gender || '');
+    params.append('birth', guest.birth || '');
+    params.append('mbti', guest.mbti || '');
+    params.append('job', guest.job || '');
+    params.append('hobby', guest.hobby || '');
+    params.append('phone', guest.phone || '');
     await fetch(SHEETS_URL, {
       method: 'POST',
       mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(guest)
+      body: params
     });
   } catch(e) {
     console.log('sheets sync failed', e);
