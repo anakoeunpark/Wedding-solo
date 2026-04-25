@@ -1214,9 +1214,31 @@ async function checkAutoStage() {
 
 // 초기화
 async function init() {
+  // Firebase에서 첫 데이터 올 때까지 기다리기
+  await new Promise(resolve => {
+    const unsub = onValue(ref(db, 'guests'), snap => {
+      guests = snap.val() || {};
+      unsub(); // 한 번만 실행
+      resolve();
+    });
+    // 최대 5초 타임아웃
+    setTimeout(resolve, 5000);
+  });
+
+  // stage도 한 번 읽기
+  await new Promise(resolve => {
+    const unsub = onValue(ref(db, 'settings/stage'), snap => {
+      stage = snap.val() || 'register';
+      unsub();
+      resolve();
+    });
+    setTimeout(resolve, 3000);
+  });
+
+  // 이후 실시간 리스너 시작
   startListeners();
-  await new Promise(r => setTimeout(r, 800));
   await checkAutoStage();
+
   const savedId = localStorage.getItem('ns_me');
   if (savedId && guests[savedId]) {
     myId = savedId;
