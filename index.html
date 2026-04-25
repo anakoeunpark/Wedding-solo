@@ -223,6 +223,19 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
         <div class="gtab" id="btn-attend-n" onclick="selAttending(false)">미참석 ❌</div>
       </div>
     </div>
+    <div class="field">
+      <label>누구의 소개로 참여하게 되었나요?</label>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;gap:8px;">
+          <div class="gtab" id="ref-groom" onclick="selReferral('groom')" style="flex:1;">신랑</div>
+          <div class="gtab" id="ref-bride" onclick="selReferral('bride')" style="flex:1;">신부</div>
+          <div class="gtab" id="ref-friend" onclick="selReferral('friend')" style="flex:1;">친구</div>
+        </div>
+        <div id="ref-friend-input" style="display:none;">
+          <input type="text" id="s-referral-name" placeholder="소개해준 친구 이름을 입력해주세요"/>
+        </div>
+      </div>
+    </div>
     <div class="field"><label>연락처 <span style="font-size:12px;">— 매칭 시 상대방에게만 전달</span></label><input type="tel" id="s-phone" placeholder="010-0000-0000"/></div>
     <div class="field"><label>비밀번호 <span style="font-size:12px;">— 나중에 수정할 때 사용</span></label><input type="password" id="s-pw" placeholder="숫자 4자리 추천"/></div>
     <div id="s-err" class="err"></div>
@@ -446,10 +459,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-const ADMIN_PASS = '1234';
+const ADMIN_PASS = '1325';
 let myId = null;
 let myGender = null;
 let myAttending = null;
+let myReferral = null; // 'groom' | 'bride' | 'friend'
 let editAttending = null;
 let guests = {};
 let votes = {};
@@ -486,6 +500,14 @@ window.selAttending = function(v) {
   myAttending = v;
   document.getElementById('btn-attend-y').className = 'gtab'+(v===true?' m':'');
   document.getElementById('btn-attend-n').className = 'gtab'+(v===false?' f':'');
+};
+
+window.selReferral = function(v) {
+  myReferral = v;
+  ['groom','bride','friend'].forEach(r => {
+    document.getElementById('ref-'+r).className = 'gtab'+(v===r?' m':'');
+  });
+  document.getElementById('ref-friend-input').style.display = v==='friend'?'block':'none';
 };
 
 window.selEditAttending = function(v) {
@@ -532,6 +554,7 @@ async function syncToSheets(guest, action='register') {
     params.append('hobby', guest.hobby || '');
     params.append('phone', guest.phone || '');
     params.append('attending', guest.attending ? 'true' : 'false');
+    params.append('referral', guest.referral==='groom'?'신랑':guest.referral==='bride'?'신부':guest.referralName?'친구('+guest.referralName+')':'');
     await fetch(SHEETS_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -604,6 +627,9 @@ window.doSignup = async function() {
   if (!job) return showErr('s-err','하는 일을 입력해주세요!');
   if (!hobby) return showErr('s-err','취미를 입력해주세요!');
   if (myAttending === null) return showErr('s-err','결혼식 참석 여부를 선택해주세요!');
+  if (!myReferral) return showErr('s-err','소개자를 선택해주세요!');
+  const referralName = myReferral==='friend' ? document.getElementById('s-referral-name').value.trim() : '';
+  if (myReferral==='friend' && !referralName) return showErr('s-err','소개해준 친구 이름을 입력해주세요!');
   if (!phone) return showErr('s-err','연락처를 입력해주세요!');
   if (!pw) return showErr('s-err','비밀번호를 설정해주세요!');
   const photoFile = document.getElementById('s-photo').files[0];
@@ -629,17 +655,20 @@ window.doSignup = async function() {
     }
   }
 
-  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, phone, pw, photoURL, attending: myAttending });
-  syncToSheets({ name, nick, gender: myGender, mbti, birth, job, hobby, phone, attending: myAttending }, 'register');
+  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, phone, pw, photoURL, attending: myAttending, referral: myReferral, referralName });
+  syncToSheets({ name, nick, gender: myGender, mbti, birth, job, hobby, phone, attending: myAttending, referral: myReferral, referralName }, 'register');
   myId = id;
   localStorage.setItem('ns_me', myId);
   ['s-name','s-nick','s-birth','s-job','s-hobby','s-phone','s-pw'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('s-mbti').value='';
-  myGender=null; myAttending=null;
+  myGender=null; myAttending=null; myReferral=null;
   document.getElementById('btn-m').className='gtab';
   document.getElementById('btn-f').className='gtab';
   document.getElementById('btn-attend-y').className='gtab';
   document.getElementById('btn-attend-n').className='gtab';
+  ['groom','bride','friend'].forEach(r=>document.getElementById('ref-'+r).className='gtab');
+  document.getElementById('ref-friend-input').style.display='none';
+  if(document.getElementById('s-referral-name')) document.getElementById('s-referral-name').value='';
   renderHome();
   showPage('home');
 };
@@ -1023,6 +1052,7 @@ function renderAdminList() {
           <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.9;">
             ${g.birth?`<span style="margin-right:12px;">🎂 ${g.birth}년생</span>`:''}${g.mbti?`<span style="margin-right:12px;">🧠 ${g.mbti}</span>`:''}${g.job?`<span>💼 ${g.job}</span>`:''}
             ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
+            ${g.referral?`<div>👥 소개: ${g.referral==='groom'?'신랑':g.referral==='bride'?'신부':'친구'}${g.referralName?' ('+g.referralName+')':''}</div>`:''}
           </div>
           <div style="font-size:12px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">${g.phone}</div>
           ${votes[g.id] ? `
