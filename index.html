@@ -145,7 +145,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   <div class="tagline">고운 &amp; 재원의 결혼을 축하하며 💌</div>
 
   <div class="notice" style="margin-bottom:1.5rem;">
-    <div style="font-size:15px;font-weight:500;color:var(--dark);margin-bottom:8px;">나의 소중한 솔로 친구, 혹은 본인이 솔로라면 프로필을 등록해주세요! 💌</div>
+    <div style="font-size:15px;font-weight:500;color:var(--dark);margin-bottom:8px;">주변에 솔로 친구가 있나요? 혹은 본인이 솔로인가요?<br>프로필을 등록해 주세요! 💌</div>
     <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:8px;">참여 방법</div>
     <div style="font-size:13px;color:var(--muted);line-height:2;">
       <div>1&nbsp; <strong style="color:var(--text);">[처음 오셨나요?]</strong> 탭에서 프로필을 등록하세요</div>
@@ -219,8 +219,8 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <div class="field">
       <label>결혼식 참석 여부</label>
       <div class="gender-row">
-        <div class="gtab" id="btn-attend-y" onclick="selAttending(true)">참석 ✅</div>
-        <div class="gtab" id="btn-attend-n" onclick="selAttending(false)">미참석 ❌</div>
+        <div class="gtab" id="btn-attend-y" onclick="selAttending(true)">참석해요 ✅</div>
+        <div class="gtab" id="btn-attend-n" onclick="selAttending(false)">참석하지 못해요 ❌</div>
       </div>
     </div>
     <div class="field">
@@ -252,7 +252,10 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   <div class="my-card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <span style="font-size:13px;font-weight:500;color:var(--muted);">내 프로필</span>
-      <button class="btn-sm" onclick="showEditProfile()">수정</button>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-sm" onclick="showContactPopup()">문의하기</button>
+        <button class="btn-sm" onclick="showEditProfile()">수정</button>
+      </div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
       <div id="my-photo"></div>
@@ -264,8 +267,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
       <div style="width:100%;margin-top:12px;padding:0 4px;" id="my-vote-summary"></div>
     </div>
   </div>
-  <div id="vote-area">
-    <div id="vote-status-banner" style="display:none;font-size:13px;color:var(--brown);background:var(--warm);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:1rem;"></div>
+  <div id="vote-area"> style="display:none;font-size:13px;color:var(--brown);background:var(--warm);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:1rem;"></div>
     <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:0.75rem;">이성 프로필 — 순위를 골라주세요</div>
     <div id="home-profiles" class="cards-grid"></div>
     <div class="divider"></div>
@@ -319,8 +321,8 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   <div class="field">
     <label>결혼식 참석 여부</label>
     <div class="gender-row">
-      <div class="gtab" id="e-btn-attend-y" onclick="selEditAttending(true)">참석 ✅</div>
-      <div class="gtab" id="e-btn-attend-n" onclick="selEditAttending(false)">미참석 ❌</div>
+      <div class="gtab" id="e-btn-attend-y" onclick="selEditAttending(true)">참석해요 ✅</div>
+      <div class="gtab" id="e-btn-attend-n" onclick="selEditAttending(false)">참석하지 못해요 ❌</div>
     </div>
   </div>
   <div class="field"><label>연락처</label><input type="tel" id="e-phone"/></div>
@@ -393,6 +395,22 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   <button class="btn" style="color:var(--rose);" onclick="if(confirm('전체 초기화할까요?'))resetAll()">전체 초기화</button>
 </div>
 
+<!-- 문의 팝업 -->
+<div id="contact-popup" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;">
+  <div style="background:var(--cream);border-radius:16px;padding:1.5rem;margin:1rem;max-width:320px;width:100%;">
+    <div style="font-family:'Gowun Batang',serif;font-size:17px;font-weight:600;color:var(--dark);margin-bottom:1rem;text-align:center;">관리자 문의</div>
+    <div style="background:#fff;border-radius:12px;padding:1rem;margin-bottom:0.75rem;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">전화번호</div>
+      <a href="tel:01044455994" style="font-size:16px;font-weight:600;color:var(--dark);text-decoration:none;">010-4445-5994</a>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">이메일</div>
+      <a href="mailto:ana.koeun.park@gmail.com" style="font-size:14px;font-weight:500;color:var(--dark);text-decoration:none;word-break:break-all;">ana.koeun.park@gmail.com</a>
+    </div>
+    <button class="btn" onclick="hideContactPopup()">닫기</button>
+  </div>
+</div>
+
 <!-- 관리자 참여자 수정 모달 -->
 <div id="admin-edit-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;overflow-y:auto;">
   <div style="max-width:480px;margin:2rem auto;background:var(--cream);border-radius:16px;padding:1.5rem;">
@@ -429,8 +447,19 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <div class="field">
       <label>결혼식 참석 여부</label>
       <div class="gender-row">
-        <div class="gtab" id="ae-btn-attend-y" onclick="selAeAttending(true)">참석 ✅</div>
-        <div class="gtab" id="ae-btn-attend-n" onclick="selAeAttending(false)">미참석 ❌</div>
+        <div class="gtab" id="ae-btn-attend-y" onclick="selAeAttending(true)">참석해요 ✅</div>
+        <div class="gtab" id="ae-btn-attend-n" onclick="selAeAttending(false)">참석하지 못해요 ❌</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>소개자</label>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <div class="gtab" id="ae-ref-groom" onclick="selAeReferral('groom')" style="flex:1;">신랑</div>
+        <div class="gtab" id="ae-ref-bride" onclick="selAeReferral('bride')" style="flex:1;">신부</div>
+        <div class="gtab" id="ae-ref-friend" onclick="selAeReferral('friend')" style="flex:1;">친구</div>
+      </div>
+      <div id="ae-ref-friend-input" style="display:none;">
+        <input type="text" id="ae-referral-name" placeholder="소개해준 친구 이름"/>
       </div>
     </div>
     <input type="hidden" id="ae-id"/>
@@ -777,8 +806,11 @@ function renderHome() {
           <div style="font-size:13px;color:var(--muted);text-align:center;margin-top:4px;">
             ${partner.gender==='M'?'남자':'여자'}${partner.mbti?' · '+partner.mbti:''}
           </div>
+          ${partner.referral?`<div style="font-size:12px;color:var(--muted);text-align:center;margin-top:4px;">
+            ${partner.referral==='groom'?'조재원을 통해 참여':partner.referral==='bride'?'박고운을 통해 참여':partner.referralName?'신랑·신부의 친구 '+partner.referralName+'을 통해 참여':''}
+          </div>`:''}
           <div style="text-align:center;margin-top:6px;">
-            <span style="font-size:12px;padding:3px 10px;border-radius:999px;${partner.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${partner.attending===true?'✅ 결혼식 참석':'❌ 결혼식 미참석'}</span>
+            <span style="font-size:12px;padding:3px 10px;border-radius:999px;${partner.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${partner.attending===true?'✅ 결혼식 참석해요':'❌ 결혼식 참석하지 못해요'}</span>
           </div>
           <div style="font-size:13px;color:var(--muted);margin-top:12px;line-height:2;">
             ${partner.birth?`<div><span style="color:var(--brown);font-weight:500;">출생연도</span> &nbsp;${partner.birth}년생</div>`:''}
@@ -980,7 +1012,12 @@ function renderStageBtns() {
   document.getElementById('stage-btns').innerHTML = '';
 }
 
-window.setStage = async function(s) {
+window.showContactPopup = function() {
+  document.getElementById('contact-popup').style.display = 'flex';
+};
+window.hideContactPopup = function() {
+  document.getElementById('contact-popup').style.display = 'none';
+};
   await set(ref(db, 'settings/stage'), s);
 };
 
@@ -1021,7 +1058,10 @@ function renderAdminList() {
   if(!list.length){el.innerHTML='<div class="empty">해당하는 참가자가 없어요.</div>';return;}
   el.innerHTML=list.map(g=>`
     <div class="acard">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;">
+        <div style="position:absolute;top:0;right:0;">
+          <button class="xbtn" onclick="removeGuest('${g.id}')">×</button>
+        </div>
         ${g.photoURL
           ? `<img src="${g.photoURL}" class="photo-circle"/>`
           : `<div class="photo-placeholder">${g.gender==='M'?'👨':'👩'}</div>`}
@@ -1034,14 +1074,11 @@ function renderAdminList() {
               </div>
               <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
                 <span style="font-size:12px;padding:2px 8px;border-radius:999px;${g.gender==='M'?'background:var(--blue-light);color:var(--blue);':'background:var(--rose-light);color:var(--rose);'}">${g.gender==='M'?'남':'여'}</span>
-                <span style="font-size:12px;padding:2px 8px;border-radius:999px;${g.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${g.attending===true?'✅ 참석':'❌ 미참석'}</span>
+                <span style="font-size:12px;padding:2px 8px;border-radius:999px;${g.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${g.attending===true?'✅ 참석해요':'❌ 참석하지 못해요'}</span>
                 ${votes[g.id]?'<span style="font-size:11px;color:var(--muted);">✓ 투표완료</span>':''}
               </div>
             </div>
-            <div style="display:flex;gap:4px;flex-shrink:0;">
-              <button class="btn-sm" onclick="adminEditGuest('${g.id}')">수정</button>
-              <button class="xbtn" onclick="removeGuest('${g.id}')">×</button>
-            </div>
+            <button class="btn-sm" onclick="adminEditGuest('${g.id}')">수정</button>
           </div>
           ${(() => {
             const r1 = Object.values(votes).filter(v=>String(v[1])===String(g.id)).length;
@@ -1060,7 +1097,7 @@ function renderAdminList() {
           <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.9;">
             ${g.birth?`<span style="margin-right:12px;">🎂 ${g.birth}년생</span>`:''}${g.mbti?`<span style="margin-right:12px;">🧠 ${g.mbti}</span>`:''}${g.job?`<span>💼 ${g.job}</span>`:''}
             ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
-            ${g.referral?`<div>👥 소개: ${g.referral==='groom'?'신랑':g.referral==='bride'?'신부':'친구'}${g.referralName?' ('+g.referralName+')':''}</div>`:''}
+            ${g.referral?`<div>👥 ${g.referral==='groom'?'조재원을 통해 참여':g.referral==='bride'?'박고운을 통해 참여':g.referralName?'신랑·신부의 친구 '+g.referralName+'을 통해 참여':''}</div>`:''}
           </div>
           <div style="font-size:12px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">${g.phone}</div>
           ${votes[g.id] ? `
@@ -1084,11 +1121,20 @@ function renderAdminList() {
 }
 
 let aeAttending = null;
+let aeReferral = null;
 
 window.selAeAttending = function(v) {
   aeAttending = v;
   document.getElementById('ae-btn-attend-y').className = 'gtab'+(v===true?' m':'');
   document.getElementById('ae-btn-attend-n').className = 'gtab'+(v===false?' f':'');
+};
+
+window.selAeReferral = function(v) {
+  aeReferral = v;
+  ['groom','bride','friend'].forEach(r => {
+    document.getElementById('ae-ref-'+r).className = 'gtab'+(v===r?' m':'');
+  });
+  document.getElementById('ae-ref-friend-input').style.display = v==='friend'?'block':'none';
 };
 
 window.adminEditGuest = function(id) {
@@ -1105,6 +1151,12 @@ window.adminEditGuest = function(id) {
   aeAttending = g.attending ?? null;
   document.getElementById('ae-btn-attend-y').className = 'gtab'+(g.attending===true?' m':'');
   document.getElementById('ae-btn-attend-n').className = 'gtab'+(g.attending===false?' f':'');
+  aeReferral = g.referral || null;
+  ['groom','bride','friend'].forEach(r => {
+    document.getElementById('ae-ref-'+r).className = 'gtab'+(g.referral===r?' m':'');
+  });
+  document.getElementById('ae-ref-friend-input').style.display = g.referral==='friend'?'block':'none';
+  document.getElementById('ae-referral-name').value = g.referralName||'';
   document.getElementById('ae-err').style.display='none';
   document.getElementById('admin-edit-modal').style.display='block';
 };
@@ -1125,7 +1177,8 @@ window.saveAdminEdit = async function() {
   const hobby = document.getElementById('ae-hobby').value.trim();
   const phone = document.getElementById('ae-phone').value.trim();
   if (!name||!nick||!phone) return showErr('ae-err','이름, 별명, 연락처는 필수예요!');
-  const updated = {...g, name, nick, mbti, birth, job, hobby, phone, attending: aeAttending};
+  const referralName = aeReferral==='friend' ? document.getElementById('ae-referral-name').value.trim() : '';
+  const updated = {...g, name, nick, mbti, birth, job, hobby, phone, attending: aeAttending, referral: aeReferral, referralName};
   await set(ref(db, 'guests/'+id), updated);
   syncToSheets(updated, 'update');
   closeAdminEdit();
@@ -1239,7 +1292,7 @@ function renderFinal() {
         </div>
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:5px;">
-        ${p.m.attending===true?'✅ 참석':'❌ 미참석'} ${p.m.nick} &nbsp;·&nbsp; ${p.f.attending===true?'✅ 참석':'❌ 미참석'} ${p.f.nick}
+        ${p.m.attending===true?'✅ 참석해요':'❌ 참석하지 못해요'} ${p.m.nick} &nbsp;·&nbsp; ${p.f.attending===true?'✅ 참석해요':'❌ 참석하지 못해요'} ${p.f.nick}
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:3px;">${p.m.phone} · ${p.f.phone}</div>
     </div>`).join('');
