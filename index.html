@@ -330,6 +330,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 <div id="page-admin" class="page">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
     <div class="logo" style="font-size:20px;">남산<span>솔로</span> <span style="font-size:14px;font-weight:400;color:var(--muted);font-family:'Noto Sans KR';">관리자</span></div>
+    <button class="btn-sm" onclick="showPage('main')">게스트 화면으로</button>
   </div>
 
   <!-- 단계 컨트롤 (상단 고정) -->
@@ -344,7 +345,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     </div>
     <div style="font-size:12px;color:var(--muted);margin-top:8px;">5월 9일 00:00에 자동으로 투표 중으로 전환돼요</div>
     <div id="stage-btns"></div>
-    <button class="btn" style="margin-top:10px;color:var(--rose);background:#fff;" onclick="if(confirm('전체 초기화할까요?'))resetAll()">전체 초기화</button>
   </div>
 
   <div class="admin-stat" id="admin-stats"></div>
@@ -377,7 +377,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <div id="mc-screen"></div>
   </div>
   <div class="divider"></div>
-  <button class="btn" onclick="showPage('main')">게스트 화면으로</button>
+  <button class="btn" style="color:var(--rose);" onclick="if(confirm('전체 초기화할까요?'))resetAll()">전체 초기화</button>
 </div>
 
 <!-- 관리자 참여자 수정 모달 -->
@@ -746,6 +746,9 @@ function renderHome() {
           ${partner.photoURL?`<img src="${partner.photoURL}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);display:block;margin:0 auto 10px;"/>`:''}
           <div style="font-size:17px;font-weight:600;color:var(--dark);text-align:center;">${partner.nick}</div>
           <div style="font-size:13px;color:var(--muted);text-align:center;margin-top:4px;">${partner.gender==='M'?'남자':'여자'}${partner.mbti?' · '+partner.mbti:''}</div>
+          <div style="text-align:center;margin-top:6px;">
+            <span style="font-size:12px;padding:3px 10px;border-radius:999px;${partner.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${partner.attending===true?'✅ 결혼식 참석':'❌ 결혼식 미참석'}</span>
+          </div>
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center;">
             <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">연락처</div>
             <div style="font-size:16px;font-weight:600;color:var(--dark);">${partner.phone}</div>
@@ -980,14 +983,18 @@ function renderAdminList() {
           : `<div class="photo-placeholder">${g.gender==='M'?'👨':'👩'}</div>`}
         <div style="width:100%;">
           <div class="acard-top">
-            <div>
-              <span style="font-weight:600;font-size:15px;">${g.nick}</span>
-              <span style="font-size:13px;color:var(--muted);margin-left:5px;">(${g.name})</span>
-              <span style="font-size:12px;padding:2px 8px;border-radius:999px;margin-left:6px;${g.gender==='M'?'background:var(--blue-light);color:var(--blue);':'background:var(--rose-light);color:var(--rose);'}">${g.gender==='M'?'남':'여'}</span>
-              <span style="font-size:12px;padding:2px 8px;border-radius:999px;margin-left:4px;${g.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${g.attending===true?'✅ 참석':'❌ 미참석'}</span>
-              ${votes[g.id]?'<span style="font-size:11px;color:var(--muted);margin-left:6px;">✓ 투표완료</span>':''}
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:4px;">
+                <span style="font-weight:600;font-size:15px;">${g.nick}</span>
+                <span style="font-size:13px;color:var(--muted);">(${g.name})</span>
+              </div>
+              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
+                <span style="font-size:12px;padding:2px 8px;border-radius:999px;${g.gender==='M'?'background:var(--blue-light);color:var(--blue);':'background:var(--rose-light);color:var(--rose);'}">${g.gender==='M'?'남':'여'}</span>
+                <span style="font-size:12px;padding:2px 8px;border-radius:999px;${g.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${g.attending===true?'✅ 참석':'❌ 미참석'}</span>
+                ${votes[g.id]?'<span style="font-size:11px;color:var(--muted);">✓ 투표완료</span>':''}
+              </div>
             </div>
-            <div style="display:flex;gap:4px;">
+            <div style="display:flex;gap:4px;flex-shrink:0;">
               <button class="btn-sm" onclick="adminEditGuest('${g.id}')">수정</button>
               <button class="xbtn" onclick="removeGuest('${g.id}')">×</button>
             </div>
@@ -1121,10 +1128,18 @@ function getMatches() {
     females.forEach(f=>{
       const mScore=getRankScore(m.id,f.id);
       const fScore=getRankScore(f.id,m.id);
-      if(mScore>0&&fScore>0) allPairs.push({m,f,mScore,fScore,mutual:mScore+fScore});
+      if(mScore>0&&fScore>0) {
+        const mutual=mScore+fScore;
+        const bothAttend = m.attending===true && f.attending===true;
+        const oneAttend = m.attending===true || f.attending===true;
+        const attendBonus = bothAttend ? 3 : oneAttend ? 1 : 0;
+        // 참석 우선: attendBonus를 높은 가중치로 정렬
+        const totalScore = attendBonus * 100 + mutual;
+        allPairs.push({m,f,mScore,fScore,mutual,attendBonus,totalScore});
+      }
     });
   });
-  allPairs.sort((a,b)=>b.mutual-a.mutual);
+  allPairs.sort((a,b)=>b.totalScore-a.totalScore);
   const pairs=[], usedM=new Set(), usedF=new Set();
   allPairs.forEach(p=>{
     if(!usedM.has(p.m.id)&&!usedF.has(p.f.id)){
@@ -1149,6 +1164,10 @@ function renderScores() {
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:5px;">
         ${p.m.nick} → ${p.f.nick}: ${p.mScore}점 &nbsp;|&nbsp; ${p.f.nick} → ${p.m.nick}: ${p.fScore}점
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px;">
+        ${p.m.attending===true?'✅':'❌'} ${p.m.nick} &nbsp;·&nbsp; ${p.f.attending===true?'✅':'❌'} ${p.f.nick}
+        &nbsp;|&nbsp; 참석 보너스 +${p.attendBonus}점
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:3px;">${p.m.phone} · ${p.f.phone}</div>
     </div>`).join('');
