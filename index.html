@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="UTF-8"/>
@@ -136,13 +135,11 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 <div class="wrap">
 
 <!-- 로딩 -->
-
 <div id="page-loading" class="page active">
   <div class="loading">로딩 중입니다. 잠깐만요 ❤️</div>
 </div>
 
 <!-- 메인: 로그인 / 회원가입 -->
-
 <div id="page-main" class="page">
   <div class="logo">남산<span>솔로</span></div>
   <div class="tagline">고운 &amp; 재원의 결혼을 축하하며 💌</div>
@@ -219,6 +216,13 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     </div>
     <div class="field"><label>하는 일</label><input type="text" id="s-job" placeholder="예: 회사원, 디자이너, 대학원생"/></div>
     <div class="field"><label>취미</label><input type="text" id="s-hobby" placeholder="예: 등산, 영화감상, 요리"/></div>
+    <div class="field">
+      <label>결혼식 참석 여부</label>
+      <div class="gender-row">
+        <div class="gtab" id="btn-attend-y" onclick="selAttending(true)">참석 ✅</div>
+        <div class="gtab" id="btn-attend-n" onclick="selAttending(false)">미참석 ❌</div>
+      </div>
+    </div>
     <div class="field"><label>연락처 <span style="font-size:12px;">— 매칭 시 상대방에게만 전달</span></label><input type="tel" id="s-phone" placeholder="010-0000-0000"/></div>
     <div class="field"><label>비밀번호 <span style="font-size:12px;">— 나중에 수정할 때 사용</span></label><input type="password" id="s-pw" placeholder="숫자 4자리 추천"/></div>
     <div id="s-err" class="err"></div>
@@ -227,7 +231,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 홈 -->
-
 <div id="page-home" class="page">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
     <div class="logo" style="font-size:22px;">남산<span>솔로</span></div>
@@ -263,7 +266,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 프로필 수정 -->
-
 <div id="page-edit" class="page">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">
     <button class="btn-sm" onclick="renderHome();showPage('home');">← 뒤로</button>
@@ -301,6 +303,13 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   </div>
   <div class="field"><label>하는 일</label><input type="text" id="e-job" placeholder="예: 회사원, 디자이너, 대학원생"/></div>
   <div class="field"><label>취미</label><input type="text" id="e-hobby" placeholder="예: 등산, 영화감상, 요리"/></div>
+  <div class="field">
+    <label>결혼식 참석 여부</label>
+    <div class="gender-row">
+      <div class="gtab" id="e-btn-attend-y" onclick="selEditAttending(true)">참석 ✅</div>
+      <div class="gtab" id="e-btn-attend-n" onclick="selEditAttending(false)">미참석 ❌</div>
+    </div>
+  </div>
   <div class="field"><label>연락처</label><input type="tel" id="e-phone"/></div>
   <div class="field"><label>새 비밀번호 <span style="font-size:12px;">변경 시에만 입력</span></label><input type="password" id="e-pw" placeholder="변경하지 않으면 비워두세요"/></div>
   <div id="e-err" class="err"></div>
@@ -308,7 +317,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 관리자 로그인 -->
-
 <div id="page-admin-login" class="page">
   <div class="logo">남산<span>솔로</span></div>
   <div class="tagline" style="margin-bottom:1.5rem;">관리자 / MC 입장</div>
@@ -319,7 +327,6 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
 </div>
 
 <!-- 관리자 메인 -->
-
 <div id="page-admin" class="page">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
     <div class="logo" style="font-size:20px;">남산<span>솔로</span> <span style="font-size:14px;font-weight:400;color:var(--muted);font-family:'Noto Sans KR';">관리자</span></div>
@@ -372,9 +379,51 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   <button class="btn" onclick="showPage('main')">게스트 화면으로</button>
 </div>
 
+<!-- 관리자 참여자 수정 모달 -->
+<div id="admin-edit-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;overflow-y:auto;">
+  <div style="max-width:480px;margin:2rem auto;background:var(--cream);border-radius:16px;padding:1.5rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+      <span style="font-size:17px;font-weight:600;color:var(--dark);">참여자 수정</span>
+      <button class="btn-sm" onclick="closeAdminEdit()">닫기</button>
+    </div>
+    <div class="field"><label>이름</label><input type="text" id="ae-name"/></div>
+    <div class="field"><label>별명</label><input type="text" id="ae-nick"/></div>
+    <div class="field"><label>MBTI</label>
+      <select id="ae-mbti">
+        <option value="">선택해 주세요</option>
+        <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
+        <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
+        <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
+        <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
+      </select>
+    </div>
+    <div class="field"><label>출생연도</label>
+      <select id="ae-birth">
+        <option value="">연도를 선택해 주세요</option>
+        <option>1970</option><option>1971</option><option>1972</option><option>1973</option><option>1974</option>
+        <option>1975</option><option>1976</option><option>1977</option><option>1978</option><option>1979</option>
+        <option>1980</option><option>1981</option><option>1982</option><option>1983</option><option>1984</option>
+        <option>1985</option><option>1986</option><option>1987</option><option>1988</option><option>1989</option>
+        <option>1990</option><option>1991</option><option>1992</option><option>1993</option><option>1994</option>
+        <option>1995</option><option>1996</option><option>1997</option><option>1998</option><option>1999</option>
+        <option>2000</option><option>2001</option><option>2002</option><option>2003</option><option>2004</option><option>2005</option>
+      </select>
+    </div>
+    <div class="field"><label>하는 일</label><input type="text" id="ae-job"/></div>
+    <div class="field"><label>취미</label><input type="text" id="ae-hobby"/></div>
+    <div class="field"><label>연락처</label><input type="tel" id="ae-phone"/></div>
+    <div class="field">
+      <label>결혼식 참석 여부</label>
+      <div class="gender-row">
+        <div class="gtab" id="ae-btn-attend-y" onclick="selAeAttending(true)">참석 ✅</div>
+        <div class="gtab" id="ae-btn-attend-n" onclick="selAeAttending(false)">미참석 ❌</div>
+      </div>
+    </div>
+    <input type="hidden" id="ae-id"/>
+    <div id="ae-err" class="err"></div>
+    <button class="btn primary" onclick="saveAdminEdit()" style="margin-top:8px;">저장하기</button>
+  </div>
 </div>
-
-<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
@@ -394,9 +443,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-const ADMIN_PASS = '1325';
+const ADMIN_PASS = '1234';
 let myId = null;
 let myGender = null;
+let myAttending = null;
+let editAttending = null;
 let guests = {};
 let votes = {};
 let stage = 'register'; // 'register' | 'open' | 'voting' | 'finished'
@@ -428,6 +479,18 @@ window.selGender = function(g) {
   document.getElementById('btn-f').className = 'gtab'+(g==='F'?' f':'');
 };
 
+window.selAttending = function(v) {
+  myAttending = v;
+  document.getElementById('btn-attend-y').className = 'gtab'+(v===true?' m':'');
+  document.getElementById('btn-attend-n').className = 'gtab'+(v===false?' f':'');
+};
+
+window.selEditAttending = function(v) {
+  editAttending = v;
+  document.getElementById('e-btn-attend-y').className = 'gtab'+(v===true?' m':'');
+  document.getElementById('e-btn-attend-n').className = 'gtab'+(v===false?' f':'');
+};
+
 // Firebase 실시간 리스너
 function startListeners() {
   onValue(ref(db, 'guests'), snap => {
@@ -453,9 +516,10 @@ function startListeners() {
 
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwhGbDeS08TcQuAGRYH2GV38HprXSB0ZYVl530u71Mg2mCdRQ2ziKSlAt66oPmwnR73/exec';
 
-async function syncToSheets(guest) {
+async function syncToSheets(guest, action='register') {
   try {
     const params = new URLSearchParams();
+    params.append('action', action);
     params.append('name', guest.name || '');
     params.append('nick', guest.nick || '');
     params.append('gender', guest.gender || '');
@@ -464,6 +528,7 @@ async function syncToSheets(guest) {
     params.append('job', guest.job || '');
     params.append('hobby', guest.hobby || '');
     params.append('phone', guest.phone || '');
+    params.append('attending', guest.attending ? 'true' : 'false');
     await fetch(SHEETS_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -535,6 +600,7 @@ window.doSignup = async function() {
   if (!birth) return showErr('s-err','출생연도를 선택해주세요!');
   if (!job) return showErr('s-err','하는 일을 입력해주세요!');
   if (!hobby) return showErr('s-err','취미를 입력해주세요!');
+  if (myAttending === null) return showErr('s-err','결혼식 참석 여부를 선택해주세요!');
   if (!phone) return showErr('s-err','연락처를 입력해주세요!');
   if (!pw) return showErr('s-err','비밀번호를 설정해주세요!');
   const photoFile = document.getElementById('s-photo').files[0];
@@ -560,15 +626,17 @@ window.doSignup = async function() {
     }
   }
 
-  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, phone, pw, photoURL });
-  syncToSheets({ name, nick, gender: myGender, mbti, birth, job, hobby, phone });
+  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, phone, pw, photoURL, attending: myAttending });
+  syncToSheets({ name, nick, gender: myGender, mbti, birth, job, hobby, phone, attending: myAttending }, 'register');
   myId = id;
   localStorage.setItem('ns_me', myId);
   ['s-name','s-nick','s-birth','s-job','s-hobby','s-phone','s-pw'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('s-mbti').value='';
-  myGender=null;
+  myGender=null; myAttending=null;
   document.getElementById('btn-m').className='gtab';
   document.getElementById('btn-f').className='gtab';
+  document.getElementById('btn-attend-y').className='gtab';
+  document.getElementById('btn-attend-n').className='gtab';
   renderHome();
   showPage('home');
 };
@@ -657,13 +725,35 @@ function renderHome() {
     return;
   }
 
-  // finished: 마감
+  // finished: 마감 - 매칭 결과 표시
   if (stage === 'finished') {
     voteArea.style.display = 'none';
     closedBanner.style.display = 'block';
-    closedBanner.innerHTML = `
-      <div style="font-family:'Gowun Batang',serif;font-size:18px;margin-bottom:6px;">투표가 마감됐어요</div>
-      <div style="font-size:14px;color:var(--muted);">곧 신랑 신부가 결과를 발표할 예정이에요 💌</div>`;
+
+    // 내 매칭 결과 찾기
+    const {pairs} = getMatches();
+    const myMatch = pairs.find(p => String(p.m.id)===String(myId) || String(p.f.id)===String(myId));
+
+    if (myMatch) {
+      const isMe = String(myMatch.m.id)===String(myId);
+      const partner = isMe ? myMatch.f : myMatch.m;
+      closedBanner.innerHTML = `
+        <div style="font-family:'Gowun Batang',serif;font-size:18px;margin-bottom:12px;color:var(--dark);">💘 매칭됐어요!</div>
+        <div style="background:#fff;border-radius:12px;padding:1rem;margin-bottom:12px;">
+          ${partner.photoURL?`<img src="${partner.photoURL}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);display:block;margin:0 auto 10px;"/>`:''}
+          <div style="font-size:17px;font-weight:600;color:var(--dark);text-align:center;">${partner.nick}</div>
+          <div style="font-size:13px;color:var(--muted);text-align:center;margin-top:4px;">${partner.gender==='M'?'남자':'여자'}${partner.mbti?' · '+partner.mbti:''}</div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center;">
+            <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">연락처</div>
+            <div style="font-size:16px;font-weight:600;color:var(--dark);">${partner.phone}</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7;">매칭 점수 ${myMatch.mutual}점으로 연결됐어요 🎉<br>용기내서 먼저 연락해보세요!</div>`;
+    } else {
+      closedBanner.innerHTML = `
+        <div style="font-family:'Gowun Batang',serif;font-size:18px;margin-bottom:6px;">투표가 마감됐어요</div>
+        <div style="font-size:14px;color:var(--muted);line-height:1.7;">아쉽게도 이번엔 매칭이 되지 않았어요.<br>다음 기회에 꼭 인연을 만나길 바라요 💌</div>`;
+    }
     return;
   }
 
@@ -747,6 +837,9 @@ window.showEditProfile = function() {
   document.getElementById('e-hobby').value = me.hobby||'';
   document.getElementById('e-phone').value = me.phone||'';
   document.getElementById('e-pw').value = '';
+  editAttending = me.attending ?? null;
+  document.getElementById('e-btn-attend-y').className = 'gtab'+(me.attending===true?' m':'');
+  document.getElementById('e-btn-attend-n').className = 'gtab'+(me.attending===false?' f':'');
   // 기존 사진 표시
   const eImg = document.getElementById('e-photo-img');
   if (me.photoURL) { eImg.src = me.photoURL; eImg.style.display = 'block'; }
@@ -768,7 +861,7 @@ window.saveProfile = async function() {
   if (!nick) return showErr('e-err','별명을 입력해주세요!');
   if (!phone) return showErr('e-err','연락처를 입력해주세요!');
   if (Object.values(guests).find(g=>g.nick===nick && g.id!==myId)) return showErr('e-err','이미 사용 중인 별명이에요.');
-  const updated = {...me, nick, mbti, birth, job, hobby, phone};
+  const updated = {...me, nick, mbti, birth, job, hobby, phone, attending: editAttending};
   if (pw) updated.pw = pw;
 
   // 새 사진 업로드
@@ -780,6 +873,7 @@ window.saveProfile = async function() {
   }
 
   await set(ref(db, 'guests/'+myId), updated);
+  syncToSheets(updated, 'update');
   renderHome();
   showPage('home');
 };
@@ -887,9 +981,13 @@ function renderAdminList() {
               <span style="font-weight:600;font-size:15px;">${g.nick}</span>
               <span style="font-size:13px;color:var(--muted);margin-left:5px;">(${g.name})</span>
               <span style="font-size:12px;padding:2px 8px;border-radius:999px;margin-left:6px;${g.gender==='M'?'background:var(--blue-light);color:var(--blue);':'background:var(--rose-light);color:var(--rose);'}">${g.gender==='M'?'남':'여'}</span>
+              <span style="font-size:12px;padding:2px 8px;border-radius:999px;margin-left:4px;${g.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${g.attending===true?'✅ 참석':'❌ 미참석'}</span>
               ${votes[g.id]?'<span style="font-size:11px;color:var(--muted);margin-left:6px;">✓ 투표완료</span>':''}
             </div>
-            <button class="xbtn" onclick="removeGuest('${g.id}')">×</button>
+            <div style="display:flex;gap:4px;">
+              <button class="btn-sm" onclick="adminEditGuest('${g.id}')">수정</button>
+              <button class="xbtn" onclick="removeGuest('${g.id}')">×</button>
+            </div>
           </div>
           ${(() => {
             const r1 = Object.values(votes).filter(v=>String(v[1])===String(g.id)).length;
@@ -930,7 +1028,53 @@ function renderAdminList() {
     </div>`).join('');
 }
 
-window.removeGuest = async function(id) {
+let aeAttending = null;
+
+window.selAeAttending = function(v) {
+  aeAttending = v;
+  document.getElementById('ae-btn-attend-y').className = 'gtab'+(v===true?' m':'');
+  document.getElementById('ae-btn-attend-n').className = 'gtab'+(v===false?' f':'');
+};
+
+window.adminEditGuest = function(id) {
+  const g = guests[id];
+  if (!g) return;
+  document.getElementById('ae-id').value = id;
+  document.getElementById('ae-name').value = g.name||'';
+  document.getElementById('ae-nick').value = g.nick||'';
+  document.getElementById('ae-mbti').value = g.mbti||'';
+  document.getElementById('ae-birth').value = g.birth||'';
+  document.getElementById('ae-job').value = g.job||'';
+  document.getElementById('ae-hobby').value = g.hobby||'';
+  document.getElementById('ae-phone').value = g.phone||'';
+  aeAttending = g.attending ?? null;
+  document.getElementById('ae-btn-attend-y').className = 'gtab'+(g.attending===true?' m':'');
+  document.getElementById('ae-btn-attend-n').className = 'gtab'+(g.attending===false?' f':'');
+  document.getElementById('ae-err').style.display='none';
+  document.getElementById('admin-edit-modal').style.display='block';
+};
+
+window.closeAdminEdit = function() {
+  document.getElementById('admin-edit-modal').style.display='none';
+};
+
+window.saveAdminEdit = async function() {
+  const id = document.getElementById('ae-id').value;
+  const g = guests[id];
+  if (!g) return;
+  const name = document.getElementById('ae-name').value.trim();
+  const nick = document.getElementById('ae-nick').value.trim();
+  const mbti = document.getElementById('ae-mbti').value;
+  const birth = document.getElementById('ae-birth').value;
+  const job = document.getElementById('ae-job').value.trim();
+  const hobby = document.getElementById('ae-hobby').value.trim();
+  const phone = document.getElementById('ae-phone').value.trim();
+  if (!name||!nick||!phone) return showErr('ae-err','이름, 별명, 연락처는 필수예요!');
+  const updated = {...g, name, nick, mbti, birth, job, hobby, phone, attending: aeAttending};
+  await set(ref(db, 'guests/'+id), updated);
+  syncToSheets(updated, 'update');
+  closeAdminEdit();
+};
   if(!confirm('삭제할까요?'))return;
   await remove(ref(db,'guests/'+id));
   await remove(ref(db,'votes/'+id));
@@ -1009,7 +1153,7 @@ function renderFinal() {
   const {pairs}=getMatches();
   const el=document.getElementById('final-list');
   if(!pairs.length){el.innerHTML='<div class="empty">아직 최종 매칭 커플이 없어요.</div>';return;}
-  el.innerHTML=pairs.map((p,i)=>`
+  el.innerHTML = pairs.map((p,i)=>`
     <div class="acard" style="${i<2?'border-color:var(--rose);':''}">
       <div class="acard-top">
         <div style="flex:1;min-width:0;">
@@ -1018,6 +1162,9 @@ function renderFinal() {
           <span style="font-size:11px;color:var(--muted);">(${p.m.name} · ${p.f.name})</span>
         </div>
         <span class="score-chip">${p.mutual}점</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:5px;">
+        ${p.m.attending===true?'✅ 참석':'❌ 미참석'} ${p.m.nick} &nbsp;·&nbsp; ${p.f.attending===true?'✅ 참석':'❌ 미참석'} ${p.f.nick}
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:3px;">${p.m.phone} · ${p.f.phone}</div>
     </div>`).join('');
@@ -1037,6 +1184,9 @@ function renderMC() {
         <div class="game-badge">🎮 커플 게임 ${i+1}팀</div>
         <div style="font-size:28px;margin:0.5rem 0;">❤️</div>
         <div class="mc-names">${p.m.nick} &amp; ${p.f.nick}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">
+          ${p.m.attending===true?'✅':'❌'} ${p.m.nick} &nbsp;·&nbsp; ${p.f.attending===true?'✅':'❌'} ${p.f.nick}
+        </div>
         <div style="font-size:13px;color:var(--muted);margin-top:4px;">앞으로 나와주세요!</div>
       </div>`).join('')}
     ${rest.length?`
@@ -1045,6 +1195,7 @@ function renderMC() {
         ${rest.map(p=>`
           <div class="mc-rest-item">
             <span>♥ ${p.m.nick} &amp; ${p.f.nick}</span>
+            <span style="font-size:12px;color:var(--muted);">${p.m.attending===true?'✅':'❌'} ${p.m.attending===true?'✅':'❌'}</span>
           </div>`).join('')}
       </div>`:''}
     <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:1rem;">연락처는 관리자가 개별 전달합니다</div>`;
@@ -1077,6 +1228,5 @@ async function init() {
 
 init();
 </script>
-
 </body>
 </html>
