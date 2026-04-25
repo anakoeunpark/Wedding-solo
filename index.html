@@ -1018,6 +1018,8 @@ window.showContactPopup = function() {
 window.hideContactPopup = function() {
   document.getElementById('contact-popup').style.display = 'none';
 };
+
+window.setStage = async function(s) {
   await set(ref(db, 'settings/stage'), s);
 };
 
