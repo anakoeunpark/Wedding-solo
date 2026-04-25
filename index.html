@@ -326,6 +326,17 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
       <div class="gtab" id="e-btn-attend-n" onclick="selEditAttending(false)">참석하지 못해요 ❌</div>
     </div>
   </div>
+  <div class="field">
+    <label>누구의 소개로 참여하게 되었나요?</label>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <div class="gtab" id="e-ref-groom" onclick="selEditReferral('groom')" style="flex:1;">신랑</div>
+      <div class="gtab" id="e-ref-bride" onclick="selEditReferral('bride')" style="flex:1;">신부</div>
+      <div class="gtab" id="e-ref-friend" onclick="selEditReferral('friend')" style="flex:1;">친구</div>
+    </div>
+    <div id="e-ref-friend-input" style="display:none;">
+      <input type="text" id="e-referral-name" placeholder="소개해준 친구 이름을 입력해주세요"/>
+    </div>
+  </div>
   <div class="field"><label>연락처</label><input type="tel" id="e-phone"/></div>
   <div class="field"><label>새 비밀번호 <span style="font-size:12px;">변경 시에만 입력</span></label><input type="password" id="e-pw" placeholder="변경하지 않으면 비워두세요"/></div>
   <div id="e-err" class="err"></div>
@@ -546,6 +557,15 @@ window.selEditAttending = function(v) {
   document.getElementById('e-btn-attend-n').className = 'gtab'+(v===false?' f':'');
 };
 
+let editReferral = null;
+window.selEditReferral = function(v) {
+  editReferral = v;
+  ['groom','bride','friend'].forEach(r => {
+    document.getElementById('e-ref-'+r).className = 'gtab'+(v===r?' m':'');
+  });
+  document.getElementById('e-ref-friend-input').style.display = v==='friend'?'block':'none';
+};
+
 // Firebase 실시간 리스너
 function startListeners() {
   onValue(ref(db, 'guests'), snap => {
@@ -737,6 +757,10 @@ function renderHome() {
     ${me.birth?`<div><span style="color:var(--brown);font-weight:500;">출생연도</span> &nbsp;${me.birth}년생</div>`:''}
     ${me.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${me.job}</div>`:''}
     ${me.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${me.hobby}</div>`:''}
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+      ${me.attending!==undefined?`<span style="font-size:12px;padding:3px 10px;border-radius:999px;${me.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${me.attending===true?'✅ 참석해요':'❌ 참석하지 못해요'}</span>`:''}
+      ${me.referral?`<span style="font-size:12px;padding:3px 10px;border-radius:999px;background:var(--warm);color:var(--brown);border:1px solid var(--border);">${me.referral==='groom'?'조재원을 통해 참여':me.referral==='bride'?'박고운을 통해 참여':me.referralName?'신랑·신부의 친구 '+me.referralName+'을 통해 참여':''}</span>`:''}
+    </div>
   `;
 
   // 내 투표 현황
@@ -923,6 +947,12 @@ window.showEditProfile = function() {
   editAttending = me.attending ?? null;
   document.getElementById('e-btn-attend-y').className = 'gtab'+(me.attending===true?' m':'');
   document.getElementById('e-btn-attend-n').className = 'gtab'+(me.attending===false?' f':'');
+  editReferral = me.referral || null;
+  ['groom','bride','friend'].forEach(r => {
+    document.getElementById('e-ref-'+r).className = 'gtab'+(me.referral===r?' m':'');
+  });
+  document.getElementById('e-ref-friend-input').style.display = me.referral==='friend'?'block':'none';
+  document.getElementById('e-referral-name').value = me.referralName||'';
   // 기존 사진 표시
   const eImg = document.getElementById('e-photo-img');
   if (me.photoURL) { eImg.src = me.photoURL; eImg.style.display = 'block'; }
@@ -944,7 +974,8 @@ window.saveProfile = async function() {
   if (!nick) return showErr('e-err','별명을 입력해주세요!');
   if (!phone) return showErr('e-err','연락처를 입력해주세요!');
   if (Object.values(guests).find(g=>g.nick===nick && g.id!==myId)) return showErr('e-err','이미 사용 중인 별명이에요.');
-  const updated = {...me, nick, mbti, birth, job, hobby, phone, attending: editAttending};
+  const referralName = editReferral==='friend' ? document.getElementById('e-referral-name').value.trim() : '';
+  const updated = {...me, nick, mbti, birth, job, hobby, phone, attending: editAttending, referral: editReferral, referralName};
   if (pw) updated.pw = pw;
 
   // 새 사진 업로드
