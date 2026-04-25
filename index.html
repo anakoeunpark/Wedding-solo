@@ -216,6 +216,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     </div>
     <div class="field"><label>하는 일</label><input type="text" id="s-job" placeholder="예: 회사원, 디자이너, 대학원생"/></div>
     <div class="field"><label>취미</label><input type="text" id="s-hobby" placeholder="예: 등산, 영화감상, 요리"/></div>
+    <div class="field"><label>한 줄 소개 <span style="font-size:12px;">선택</span></label><textarea id="s-intro" placeholder="자유롭게 어필해보세요 :)" style="height:72px;"></textarea></div>
     <div class="field">
       <label>결혼식 참석 여부</label>
       <div class="gender-row">
@@ -319,6 +320,7 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
   </div>
   <div class="field"><label>하는 일</label><input type="text" id="e-job" placeholder="예: 회사원, 디자이너, 대학원생"/></div>
   <div class="field"><label>취미</label><input type="text" id="e-hobby" placeholder="예: 등산, 영화감상, 요리"/></div>
+  <div class="field"><label>한 줄 소개 <span style="font-size:12px;">선택</span></label><textarea id="e-intro" placeholder="자유롭게 어필해보세요 :)" style="height:72px;"></textarea></div>
   <div class="field">
     <label>결혼식 참석 여부</label>
     <div class="gender-row">
@@ -667,6 +669,7 @@ window.doSignup = async function() {
   const birth = document.getElementById('s-birth').value;
   const job = document.getElementById('s-job').value.trim();
   const hobby = document.getElementById('s-hobby').value.trim();
+  const intro = document.getElementById('s-intro').value.trim();
   const phone = document.getElementById('s-phone').value.trim();
   const pw = document.getElementById('s-pw').value;
   if (!name) return showErr('s-err','이름을 입력해주세요!');
@@ -705,11 +708,11 @@ window.doSignup = async function() {
     }
   }
 
-  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, phone, pw, photoURL, attending: myAttending, referral: myReferral, referralName });
+  await set(ref(db, 'guests/'+id), { id, name, nick, gender: myGender, mbti, birth, job, hobby, intro, phone, pw, photoURL, attending: myAttending, referral: myReferral, referralName });
   syncToSheets({ name, nick, gender: myGender, mbti, birth, job, hobby, phone, attending: myAttending, referral: myReferral, referralName }, 'register');
   myId = id;
   localStorage.setItem('ns_me', myId);
-  ['s-name','s-nick','s-birth','s-job','s-hobby','s-phone','s-pw'].forEach(i=>document.getElementById(i).value='');
+  ['s-name','s-nick','s-birth','s-job','s-hobby','s-intro','s-phone','s-pw'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('s-mbti').value='';
   myGender=null; myAttending=null; myReferral=null;
   document.getElementById('btn-m').className='gtab';
@@ -757,6 +760,7 @@ function renderHome() {
     ${me.birth?`<div><span style="color:var(--brown);font-weight:500;">출생연도</span> &nbsp;${me.birth}년생</div>`:''}
     ${me.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${me.job}</div>`:''}
     ${me.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${me.hobby}</div>`:''}
+    ${me.intro?`<div><span style="color:var(--brown);font-weight:500;">소개</span> &nbsp;${me.intro}</div>`:''}
     <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
       ${me.attending!==undefined?`<span style="font-size:12px;padding:3px 10px;border-radius:999px;${me.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${me.attending===true?'✅ 참석해요':'❌ 참석하지 못해요'}</span>`:''}
       ${me.referral?`<span style="font-size:12px;padding:3px 10px;border-radius:999px;background:var(--warm);color:var(--brown);border:1px solid var(--border);">${me.referral==='groom'?'조재원을 통해 참여':me.referral==='bride'?'박고운을 통해 참여':me.referralName?'신랑·신부의 친구 '+me.referralName+'을 통해 참여':''}</span>`:''}
@@ -888,6 +892,7 @@ function renderHome() {
             ${g.birth?`<div><span style="color:var(--brown);font-weight:500;">출생연도</span> &nbsp;${g.birth}년생</div>`:''}
             ${g.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${g.job}</div>`:''}
             ${g.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${g.hobby}</div>`:''}
+            ${g.intro?`<div><span style="color:var(--brown);font-weight:500;">소개</span> &nbsp;${g.intro}</div>`:''}
           </div>
           <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);font-size:13px;line-height:1.9;">
             <div style="${g.attending===true?'color:#2e7d32;':'color:#c62828;'}">
@@ -942,6 +947,7 @@ window.showEditProfile = function() {
   document.getElementById('e-birth').value = me.birth||'';
   document.getElementById('e-job').value = me.job||'';
   document.getElementById('e-hobby').value = me.hobby||'';
+  document.getElementById('e-intro').value = me.intro||'';
   document.getElementById('e-phone').value = me.phone||'';
   document.getElementById('e-pw').value = '';
   editAttending = me.attending ?? null;
@@ -969,13 +975,14 @@ window.saveProfile = async function() {
   const birth = document.getElementById('e-birth').value;
   const job = document.getElementById('e-job').value.trim();
   const hobby = document.getElementById('e-hobby').value.trim();
+  const intro = document.getElementById('e-intro').value.trim();
   const phone = document.getElementById('e-phone').value.trim();
   const pw = document.getElementById('e-pw').value;
   if (!nick) return showErr('e-err','별명을 입력해주세요!');
   if (!phone) return showErr('e-err','연락처를 입력해주세요!');
   if (Object.values(guests).find(g=>g.nick===nick && g.id!==myId)) return showErr('e-err','이미 사용 중인 별명이에요.');
   const referralName = editReferral==='friend' ? document.getElementById('e-referral-name').value.trim() : '';
-  const updated = {...me, nick, mbti, birth, job, hobby, phone, attending: editAttending, referral: editReferral, referralName};
+  const updated = {...me, nick, mbti, birth, job, hobby, intro, phone, attending: editAttending, referral: editReferral, referralName};
   if (pw) updated.pw = pw;
 
   // 새 사진 업로드
@@ -1131,6 +1138,7 @@ function renderAdminList() {
           <div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.9;">
             ${g.birth?`<span style="margin-right:12px;">🎂 ${g.birth}년생</span>`:''}${g.mbti?`<span style="margin-right:12px;">🧠 ${g.mbti}</span>`:''}${g.job?`<span>💼 ${g.job}</span>`:''}
             ${g.hobby?`<div>🎯 ${g.hobby}</div>`:''}
+            ${g.intro?`<div>💬 ${g.intro}</div>`:''}
             ${g.referral?`<div>👥 ${g.referral==='groom'?'조재원을 통해 참여':g.referral==='bride'?'박고운을 통해 참여':g.referralName?'신랑·신부의 친구 '+g.referralName+'을 통해 참여':''}</div>`:''}
           </div>
           <div style="font-size:12px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">${g.phone}</div>
