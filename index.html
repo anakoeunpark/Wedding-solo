@@ -1160,7 +1160,10 @@ function renderScores() {
           <span style="font-weight:600;">${p.m.nick} &amp; ${p.f.nick}</span><br>
           <span style="font-size:11px;color:var(--muted);">(${p.m.name} · ${p.f.name})</span>
         </div>
-        <span class="score-chip">${p.mutual}점</span>
+        <div style="text-align:right;">
+          <span class="score-chip">${p.mutual}점</span><br>
+          <span style="font-size:11px;color:var(--brown);">+${p.attendBonus} → 총 ${p.mutual+p.attendBonus}점</span>
+        </div>
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:5px;">
         ${p.m.nick} → ${p.f.nick}: ${p.mScore}점 &nbsp;|&nbsp; ${p.f.nick} → ${p.m.nick}: ${p.fScore}점
@@ -1185,7 +1188,10 @@ function renderFinal() {
           <span style="font-weight:600;">${p.m.nick} &amp; ${p.f.nick}</span><br>
           <span style="font-size:11px;color:var(--muted);">(${p.m.name} · ${p.f.name})</span>
         </div>
-        <span class="score-chip">${p.mutual}점</span>
+        <div style="text-align:right;">
+          <span class="score-chip">${p.mutual}점</span><br>
+          <span style="font-size:11px;color:var(--brown);">+${p.attendBonus} → 총 ${p.mutual+p.attendBonus}점</span>
+        </div>
       </div>
       <div style="font-size:12px;color:var(--muted);margin-top:5px;">
         ${p.m.attending===true?'✅ 참석':'❌ 미참석'} ${p.m.nick} &nbsp;·&nbsp; ${p.f.attending===true?'✅ 참석':'❌ 미참석'} ${p.f.nick}
@@ -1222,7 +1228,7 @@ function renderMC() {
             <span style="font-size:12px;color:var(--muted);">${p.m.attending===true?'✅':'❌'} ${p.m.attending===true?'✅':'❌'}</span>
           </div>`).join('')}
       </div>`:''}
-    <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:1rem;">연락처는 관리자가 개별 전달합니다</div>`;
+    <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:1rem;"></div>`;
 }
 
 // 5월 9일 자동 투표 오픈
