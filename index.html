@@ -841,10 +841,11 @@ function renderHome() {
           <div style="text-align:center;margin-top:6px;">
             <span style="font-size:12px;padding:3px 10px;border-radius:999px;${partner.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${partner.attending===true?'✅ 결혼식 참석해요':'❌ 결혼식 참석하지 못해요'}</span>
           </div>
-          <div style="font-size:13px;color:var(--muted);margin-top:12px;line-height:2;">
+          <div style="font-size:13px;color:var(--muted);margin-top:12px;line-height:2;text-align:left;">
             ${partner.birth?`<div><span style="color:var(--brown);font-weight:500;">출생연도</span> &nbsp;${partner.birth}년생</div>`:''}
             ${partner.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${partner.job}</div>`:''}
             ${partner.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${partner.hobby}</div>`:''}
+            ${partner.intro?`<div><span style="color:var(--brown);font-weight:500;">자기소개</span> &nbsp;${partner.intro}</div>`:''}
           </div>
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center;">
             <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">연락처</div>
