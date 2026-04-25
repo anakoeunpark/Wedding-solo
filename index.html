@@ -150,8 +150,8 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <div style="font-size:13px;color:var(--muted);line-height:2;">
       <div>1&nbsp; <strong style="color:var(--text);">[처음 오셨나요?]</strong> 탭에서 프로필을 등록하세요</div>
       <div>2&nbsp; 5월 9일 결혼식 당일, 이성 참가자의 프로필이 공개돼요 💘</div>
-      <div>3&nbsp; 2부 피로연이 시작되기 전까지 마음에 드는 분을 <strong style="color:var(--text);">1·2·3순위</strong>로 투표하세요</div>
-      <div>4&nbsp; 매칭 결과는 <strong style="color:var(--text);">[남산솔로]</strong>에서 신랑·신부가 직접 발표합니다 🎉</div>
+      <div>3&nbsp; 2부 피로연이 시작되기 전까지 마음에 드는 분을 <strong style="color:var(--text);">1·2·3순위</strong>로 투표하세요 <span style="color:var(--rose);">(2부 피로연은 19:30 시작)</span></div>
+      <div>4&nbsp; 매칭 결과는 2부 <strong style="color:var(--text);">[남산솔로]</strong> 프로그램이 시작될 때 신랑·신부가 발표합니다! 🎉<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted);font-size:12px;">(내 프로필에서도 매칭 여부를 확인할 수 있어요)</span></div>
     </div>
   </div>
 
@@ -722,8 +722,8 @@ function renderHome() {
       <div style="font-family:'Gowun Batang',serif;font-size:18px;margin-bottom:12px;color:var(--dark);">💘 5월 9일, 이성 프로필이 공개됩니다</div>
       <div style="font-size:13px;color:var(--muted);line-height:2.2;text-align:left;">
         <div>1 &nbsp; 5월 9일 결혼식 당일, 이성 참가자의 프로필이 공개돼요 💘</div>
-        <div>2 &nbsp; 2부 피로연이 시작되기 전까지 마음에 드는 분을<br>&nbsp;&nbsp;&nbsp;&nbsp; 1위·2위·3위로 투표해주세요</div>
-        <div>3 &nbsp; 매칭 결과는 <strong style="color:var(--dark);">[남산솔로]</strong>에서<br>&nbsp;&nbsp;&nbsp;&nbsp; 신랑·신부가 직접 발표합니다 🎉</div>
+        <div>2 &nbsp; 2부 피로연이 시작되기 전까지 마음에 드는 분을<br>&nbsp;&nbsp;&nbsp;&nbsp; 1위·2위·3위로 투표해주세요 <span style="color:var(--rose);">(2부 피로연 19:30 시작)</span></div>
+        <div>3 &nbsp; 매칭 결과는 2부 <strong style="color:var(--dark);">[남산솔로]</strong> 프로그램이 시작될 때<br>&nbsp;&nbsp;&nbsp;&nbsp; 신랑·신부가 직접 발표합니다 🎉<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:12px;color:var(--muted);">(내 프로필에서도 매칭 여부를 확인할 수 있어요)</span></div>
       </div>`;
     return;
   }
@@ -743,15 +743,22 @@ function renderHome() {
       closedBanner.innerHTML = `
         <div style="font-family:'Gowun Batang',serif;font-size:18px;margin-bottom:12px;color:var(--dark);">💘 매칭됐어요!</div>
         <div style="background:#fff;border-radius:12px;padding:1rem;margin-bottom:12px;">
-          ${partner.photoURL?`<img src="${partner.photoURL}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);display:block;margin:0 auto 10px;"/>`:''}
-          <div style="font-size:17px;font-weight:600;color:var(--dark);text-align:center;">${partner.nick}</div>
-          <div style="font-size:13px;color:var(--muted);text-align:center;margin-top:4px;">${partner.gender==='M'?'남자':'여자'}${partner.mbti?' · '+partner.mbti:''}</div>
+          ${partner.photoURL?`<img src="${partner.photoURL}" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:2px solid var(--border);display:block;margin:0 auto 12px;"/>`:`<div style="width:100px;height:100px;border-radius:50%;background:var(--warm);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 12px;">${partner.gender==='M'?'👨':'👩'}</div>`}
+          <div style="font-size:18px;font-weight:600;color:var(--dark);text-align:center;">${partner.nick}</div>
+          <div style="font-size:13px;color:var(--muted);text-align:center;margin-top:4px;">
+            ${partner.gender==='M'?'남자':'여자'}${partner.mbti?' · '+partner.mbti:''}
+          </div>
           <div style="text-align:center;margin-top:6px;">
             <span style="font-size:12px;padding:3px 10px;border-radius:999px;${partner.attending===true?'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;':'background:#fce8e8;color:#c62828;border:1px solid #ef9a9a;'}">${partner.attending===true?'✅ 결혼식 참석':'❌ 결혼식 미참석'}</span>
           </div>
+          <div style="font-size:13px;color:var(--muted);margin-top:12px;line-height:2;">
+            ${partner.birth?`<div><span style="color:var(--brown);font-weight:500;">출생연도</span> &nbsp;${partner.birth}년생</div>`:''}
+            ${partner.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${partner.job}</div>`:''}
+            ${partner.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${partner.hobby}</div>`:''}
+          </div>
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);text-align:center;">
             <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">연락처</div>
-            <div style="font-size:16px;font-weight:600;color:var(--dark);">${partner.phone}</div>
+            <div style="font-size:17px;font-weight:600;color:var(--dark);">${partner.phone}</div>
           </div>
         </div>
         <div style="font-size:13px;color:var(--muted);line-height:1.7;">용기내서 먼저 연락해보세요! 🎉</div>`;
