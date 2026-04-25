@@ -1077,6 +1077,8 @@ window.saveAdminEdit = async function() {
   syncToSheets(updated, 'update');
   closeAdminEdit();
 };
+
+window.removeGuest = async function(id) {
   if(!confirm('삭제할까요?'))return;
   await remove(ref(db,'guests/'+id));
   await remove(ref(db,'votes/'+id));
