@@ -424,6 +424,8 @@ textarea { resize: none; height: 88px; line-height: 1.6; }
     <button class="btn primary" onclick="saveAdminEdit()" style="margin-top:8px;">저장하기</button>
   </div>
 </div>
+
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
