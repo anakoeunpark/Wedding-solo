@@ -832,6 +832,14 @@ function renderHome() {
             ${g.job?`<div><span style="color:var(--brown);font-weight:500;">하는 일</span> &nbsp;${g.job}</div>`:''}
             ${g.hobby?`<div><span style="color:var(--brown);font-weight:500;">취미</span> &nbsp;${g.hobby}</div>`:''}
           </div>
+          <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);font-size:13px;line-height:1.9;">
+            <div style="${g.attending===true?'color:#2e7d32;':'color:#c62828;'}">
+              ${g.attending===true?'✅ 오늘 결혼식에 참석했어요':'❌ 오늘 결혼식에 참석하지 못했어요'}
+            </div>
+            ${g.referral?`<div style="color:var(--muted);">
+              ${g.referral==='groom'?'👫 조재원 친구':g.referral==='bride'?'👫 박고운 친구':`👫 신랑 신부의 친구인 <strong style="color:var(--text);">${g.referralName}</strong>의 소개로 참여했어요`}
+            </div>`:''}
+          </div>
           <div class="vote-btns">
             <button class="vbtn ${myVotesMap[1]&&String(myVotesMap[1])===String(g.id)?'active-1':''}" onclick="castVote(1,'${g.id}')">1순위</button>
             <button class="vbtn ${myVotesMap[2]&&String(myVotesMap[2])===String(g.id)?'active-2':''}" onclick="castVote(2,'${g.id}')">2순위</button>
